@@ -19,7 +19,11 @@ namespace maze
 
         int mazeSize = 0;  //single coord because we're assuming the maze size will be square. *thumbs up*
         private SpriteFont font;
-        Texture2D background;
+        public Texture2D background;
+        public Texture2D player_sprite;
+        public Texture2D yellow1x1;
+        Texture2D cell_sprite;
+        public Point windowSize = new(1200, 1200);     //NOTE: Setting the window size to 1200x1200
 
         //Menu...
         List<MenuElement> menuElements;
@@ -38,13 +42,6 @@ namespace maze
         bool isMazeSetUp = false;
         Maze maze;
 
-        //stuff from MazeGenerator
-        /*IMazeStorage mazeStorage;
-        IMazeCreation mazeCreator;
-        Player player;
-        IMazeSolver solver;*/
-        //IMazeRenderer renderTarget;
-
         enum GameStates
         {
             Menu,
@@ -62,6 +59,11 @@ namespace maze
             _graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
+
+            //Change the resolution
+            _graphics.PreferredBackBufferWidth = windowSize.X; //1200;  // set this value to the desired width of your window
+            _graphics.PreferredBackBufferHeight = windowSize.Y; // 1200;   // set this value to the desired height of your window
+            _graphics.ApplyChanges();
 
             //Initialize stuff I declared
             gameState = GameStates.Menu;    //Let's start here!
@@ -90,7 +92,11 @@ namespace maze
             //Set up the font for the menu
             font = Content.Load<SpriteFont>("arial");
 
+            //Now let's load us some sprites
             background = Content.Load<Texture2D>("galaxy-background");
+            player_sprite = Content.Load<Texture2D>("player");
+            yellow1x1 = Content.Load<Texture2D>("yellow1x1");
+            cell_sprite = Content.Load<Texture2D>("cell-placeholder"); ;
 
             // TODO: use this.Content to load your game content here
         }
@@ -98,7 +104,99 @@ namespace maze
         //Monogame: Update
         protected override void Update(GameTime gameTime)
         {
-            switch (gameState) {
+            ProcessInput(gameTime);
+
+            base.Update(gameTime);
+        }
+
+        //Monogame: Draw
+        protected override void Draw(GameTime gameTime)
+        {
+            GraphicsDevice.Clear(Color.CornflowerBlue);
+
+            spriteBatch.Begin();
+            switch (gameState)
+            {
+                case (GameStates.Menu):
+                    //render the menu
+                    for(int i = 0; i < menuElements.Count; i++)
+                    {
+                        MenuElement el = menuElements[i];
+                        spriteBatch.DrawString(font, el.text, el.coords, el.color);
+                    }
+                    break;
+                case (GameStates.HighScores):
+                    for (int i = 0; i < highScoresElements.Count; i++)
+                    {
+                        HighScoresElement el = highScoresElements[i];
+                        spriteBatch.DrawString(font, el.text, el.coords, el.color);
+                    }
+                    break;
+                case (GameStates.Credits):
+                    for (int i = 0; i < creditsElements.Count; i++)
+                    {
+                        CreditsElement el = creditsElements[i];
+                        spriteBatch.DrawString(font, el.text, el.coords, el.color);
+                    }
+                    break;
+                case GameStates.InitializingGame:
+                    // hourglass icon, maybe?  *shrug*                    
+                    break;
+                case GameStates.PlayingGame:
+                    //Render the maze                    
+                    //..starting with the background:
+                    //  TODO, MAYBE: have multiple background sprites and randomly choose one
+                    spriteBatch.Draw(background, new Rectangle(0, 0, windowSize.X, windowSize.Y), Color.White);  //default window size? TBD
+
+                    //...then on to the lists
+                    for (int i = 0; i < mazeElements[MazeElement.ElementType.Cell].Count; i++)
+                    {
+                        //skipping this; cells will simply be transparent
+                    }
+                    for (int i = 0; i < mazeElements[MazeElement.ElementType.Wall].Count; i++)
+                    {
+                        MazeElement el = mazeElements[MazeElement.ElementType.Wall][i];
+                        if(el.callType == MazeElement.CallType.Vector2)
+                            spriteBatch.Draw(el.texture, el.coords, el.color);
+                        else //el.callType == Rectangle
+                            spriteBatch.Draw(el.texture, el.rect, el.color);
+                    }
+                    for (int i = 0; i < mazeElements[MazeElement.ElementType.BreadcrumbTrail].Count; i++)
+                    {
+                        //TODO
+                    }
+                    for (int i = 0; i < mazeElements[MazeElement.ElementType.ShortestPath].Count; i++)
+                    {
+                        //TODO
+                    }                   
+                    for (int i = 0; i < mazeElements[MazeElement.ElementType.Hint].Count; i++)
+                    {
+                        //TODO
+                    }
+                    for (int i = 0; i < mazeElements[MazeElement.ElementType.Player].Count; i++)
+                    {
+                        //TODO
+                    }
+
+                    //Also, render the score, the timer, the keypresses...and w/e else
+                    // TODO
+
+                    break;
+                case GameStates.PostGame:
+                    // ummmm...TBD
+                    //TODO
+                    break;
+            }
+            spriteBatch.End();
+            
+            base.Draw(gameTime);
+        
+        }//END Draw()
+
+        private void ProcessInput(GameTime gameTime)
+        {
+            switch (gameState)
+            {
                 case (GameStates.Menu):
                     if (!isMenuSetUp)
                     {
@@ -170,8 +268,8 @@ namespace maze
                 case GameStates.InitializingGame:
                     if (!isMazeSetUp)
                     {
-                        maze = new(mazeSize, mazeElements);   //mazeSize is non-zero at this point, right?  tbd
-                        maze.SetupMaze(mazeSize, mazeElements);
+                        maze = new(mazeSize, mazeElements);
+                        maze.SetupMaze(mazeSize, mazeElements, this);
                         isMazeSetUp = true;
                         gameState = GameStates.PlayingGame;
                     }
@@ -218,86 +316,11 @@ namespace maze
                     }
                     //END TMP
                     break;
-            }
 
-            base.Update(gameTime);
-        }
+            }//END switch (gameState)
 
-        //Monogame: Draw
-        protected override void Draw(GameTime gameTime)
-        {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+        }//END ProcessInput()
 
-            spriteBatch.Begin();
-            switch (gameState)
-            {
-                case (GameStates.Menu):
-                    //render the menu
-                    for(int i = 0; i < menuElements.Count; i++)
-                    {
-                        MenuElement el = menuElements[i];
-                        spriteBatch.DrawString(font, el.text, el.coords, el.color);
-                    }
-                    break;
-                case (GameStates.HighScores):
-                    for (int i = 0; i < highScoresElements.Count; i++)
-                    {
-                        HighScoresElement el = highScoresElements[i];
-                        spriteBatch.DrawString(font, el.text, el.coords, el.color);
-                    }
-                    break;
-                case (GameStates.Credits):
-                    for (int i = 0; i < creditsElements.Count; i++)
-                    {
-                        CreditsElement el = creditsElements[i];
-                        spriteBatch.DrawString(font, el.text, el.coords, el.color);
-                    }
-                    break;
-                case GameStates.InitializingGame:
-                    // hourglass icon, maybe?  *shrug*                    
-                    break;
-                case GameStates.PlayingGame:
-                    //Render the maze
-                    //..starting with the background:
-                    spriteBatch.Draw(background, new Rectangle(0, 0, 800, 480), Color.White);  //default window size? TBD
-                    //...then on to the lists
-                    for (int i = 0; i < mazeElements[MazeElement.ElementType.Cell].Count; i++)
-                    {
-                        //TODO
-                    }
-                    for (int i = 0; i < mazeElements[MazeElement.ElementType.Wall].Count; i++)
-                    {
-                        //TODO
-                    }
-                    for (int i = 0; i < mazeElements[MazeElement.ElementType.BreadcrumbTrail].Count; i++)
-                    {
-                        //TODO
-                    }
-                    for (int i = 0; i < mazeElements[MazeElement.ElementType.ShortestPath].Count; i++)
-                    {
-                        //TODO
-                    }                   
-                    for (int i = 0; i < mazeElements[MazeElement.ElementType.Hint].Count; i++)
-                    {
-                        //TODO
-                    }
-                    for (int i = 0; i < mazeElements[MazeElement.ElementType.Player].Count; i++)
-                    {
-                        //TODO
-                    }
+    }//END class MazeGame
 
-                    //Also, render the score, the timer, the keypresses...and w/e else
-                    // TODO
-
-                    break;
-                case GameStates.PostGame:
-                    // ummmm...TBD
-                    //TODO
-                    break;
-            }
-            spriteBatch.End();
-            
-            base.Draw(gameTime);
-        }
-    }
-}
+}//END namespace

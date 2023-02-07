@@ -1,7 +1,9 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -25,6 +27,33 @@ namespace mazeGame.GameElements.Derived_classes
             ShortestPath,
             BreadcrumbTrail,
             Hint
+        }
+
+        internal enum CallType
+        {
+            //unset = 0,
+            Vector2,
+            Rectangle
+        }
+        internal CallType callType;
+
+        //Cornstructors
+        internal MazeElement(Texture2D t, CallType callType, Rectangle r, Color c)
+        {
+            texture = t;
+            //coords = null;
+            rect = r;
+            color = c;
+            this.callType = callType;
+        }
+
+        internal MazeElement(Texture2D t, CallType callType, Vector2 v, Color c)
+        {
+            texture = t;
+            coords = v;
+            //rect = null;
+            color = c;
+            this.callType = callType;
         }
     }
 }
