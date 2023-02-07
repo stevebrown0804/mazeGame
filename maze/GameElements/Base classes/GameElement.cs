@@ -15,7 +15,7 @@ namespace mazeGame
         //string text = "";
         //...
 
-        enum ElementType
+        /*enum ElementType        //NOTE: not in use atm; using separate lists instead
         {
             unset = 0,
             Text,
@@ -25,7 +25,7 @@ namespace mazeGame
             ShortestPath,
             BreadcrumbTrail,
             Hint
-        }
+        }*/
         //internal ElementType eleType;
     }
 }

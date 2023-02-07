@@ -6,6 +6,8 @@ using Microsoft.Xna.Framework.Input;
 using System.Collections.Generic;
 using mazeGame.Menu;
 using mazeGame.GameElements;
+using mazeGame.Setup.Maze;
+using mazeGame.GameElements.Derived_classes;
 
 namespace maze
 {
@@ -15,9 +17,10 @@ namespace maze
         private GraphicsDeviceManager _graphics;
         private SpriteBatch spriteBatch;
 
-        int mazeSize = 1;  //single coord because we're assuming the maze size will be square *thumbs up*
+        int mazeSize = 0;  //single coord because we're assuming the maze size will be square. *thumbs up*
         private SpriteFont font;
-        //List<GameElement> elements; //this one may jsut become a base class
+        Texture2D background;
+
         //Menu...
         List<MenuElement> menuElements;
         bool isMenuSetUp = false;
@@ -30,13 +33,16 @@ namespace maze
         List<CreditsElement> creditsElements;
         bool isCreditsSetUp = false;
         Credits credits;
-
+        //...maze...
+        Dictionary<MazeElement.ElementType, List<MazeElement>> mazeElements;        //<--notice: different!
+        bool isMazeSetUp = false;
+        Maze maze;
 
         //stuff from MazeGenerator
-        IMazeStorage maze;
+        /*IMazeStorage mazeStorage;
         IMazeCreation mazeCreator;
         Player player;
-        IMazeSolver solver;
+        IMazeSolver solver;*/
         //IMazeRenderer renderTarget;
 
         enum GameStates
@@ -59,46 +65,20 @@ namespace maze
 
             //Initialize stuff I declared
             gameState = GameStates.Menu;    //Let's start here!
-            //elements = new();
+
             menuElements = new();           //menu
             menu = new();
             highScoresElements = new();     //high schore
             highScores = new();
             creditsElements = new();        //credits
             credits = new();
-            //IMazeStorage maze;
-            //IMazeCreation mazeCreator;
-            //Player player;
-            //IMazeSolver solver;
-            //IMazeRenderer renderTarget;
+            mazeElements = new();           //maze
+            maze = null; 
         }
 
         //Monogame: Initialize
         protected override void Initialize()
         {
-            //First we'll create the starting point for the maze
-            maze = new MazeStorage_Dictionary(mazeSize, mazeSize);
-                //Actually, don't generate until we're done with the menu
-
-            //Next up, we'll create a maze using a specific routine            
-            //IMazeCreation mazeCreator = new DepthFirst_Iterative();
-            mazeCreator = new Prims();
-            maze = maze.CreateMaze(mazeCreator);
-
-            //We'll create a player object
-            player = new(maze);
-
-            //And a maze-solver object
-            solver = new MazeSolver();
-            solver = solver.Solve(maze, player);
-
-            //..and then render it
-            //IMazeRenderer renderTarget = new RenderDictionaryToConsole();
-            //IMazeRenderer renderTarget = new RenderDictionaryToFile();
-            //maze.Render(renderTarget, solver);
-            //maze.Render(renderTarget);
-
-
             base.Initialize();
         }
 
@@ -110,6 +90,8 @@ namespace maze
             //Set up the font for the menu
             font = Content.Load<SpriteFont>("arial");
 
+            background = Content.Load<Texture2D>("galaxy-background");
+
             // TODO: use this.Content to load your game content here
         }
 
@@ -118,12 +100,11 @@ namespace maze
         {
             switch (gameState) {
                 case (GameStates.Menu):
-                    //set up the menu
                     if (!isMenuSetUp)
                     {
                         menu.SetupMenu(menuElements);
                         isMenuSetUp = true;
-                    }
+                    }   //A thought: Could do this with another state (eg. MenuSetup)
                     if (Keyboard.GetState().IsKeyDown(Keys.F1))
                     {
                         gameState = GameStates.InitializingGame;
@@ -158,9 +139,7 @@ namespace maze
                     {
                         gameState = GameStates.Credits;
                         menuElements.Clear();
-                    }/*else if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed 
-                               || Keyboard.GetState().IsKeyDown(Keys.Escape))
-                        Exit();*/
+                    }
 
                     break;
                 case GameStates.HighScores:
@@ -186,14 +165,58 @@ namespace maze
                     {
                         gameState = GameStates.Menu;
                         isMenuSetUp = false;
-                        //creditsElements.Clear(); //only needs to be set up one time
                     }
                     break;
                 case GameStates.InitializingGame:
+                    if (!isMazeSetUp)
+                    {
+                        maze = new(mazeSize, mazeElements);   //mazeSize is non-zero at this point, right?  tbd
+                        maze.SetupMaze(mazeSize, mazeElements);
+                        isMazeSetUp = true;
+                        gameState = GameStates.PlayingGame;
+                    }
                     break;
                 case GameStates.PlayingGame:
+                    if (Keyboard.GetState().IsKeyDown(Keys.Up))     //TODO: wasd, ijkl
+                    {
+                        //TODO: up!
+
+                        if (maze.player.IsAtGoal())
+                            gameState = GameStates.PostGame;
+                    }
+                    else if (Keyboard.GetState().IsKeyDown(Keys.Down))
+                    {
+                        //TODO: down!
+
+                        if (maze.player.IsAtGoal())
+                            gameState = GameStates.PostGame;
+                    }
+                    else if (Keyboard.GetState().IsKeyDown(Keys.Left))
+                    {
+                        //TODO: left!
+
+                        if (maze.player.IsAtGoal())
+                            gameState = GameStates.PostGame;
+                    }
+                    else if (Keyboard.GetState().IsKeyDown(Keys.Right))
+                    {
+                        //TODO: right!
+
+                        if (maze.player.IsAtGoal())
+                            gameState = GameStates.PostGame;
+                    }
                     break;
                 case GameStates.PostGame:
+                    //TODO: Figure out what we're going to do here
+                    // eg. Write some 'congrats' text, wait for ESC to be pressed, return to menu
+
+                    //TMP-to-perm
+                    if (Keyboard.GetState().IsKeyDown(Keys.Escape))
+                    {
+                        gameState = GameStates.Menu;
+                        isMenuSetUp = false;
+                    }
+                    //END TMP
                     break;
             }
 
@@ -231,13 +254,45 @@ namespace maze
                     }
                     break;
                 case GameStates.InitializingGame:
-                    // hourglass icon, maybe?  *shrug*
+                    // hourglass icon, maybe?  *shrug*                    
                     break;
                 case GameStates.PlayingGame:
                     //Render the maze
+                    //..starting with the background:
+                    spriteBatch.Draw(background, new Rectangle(0, 0, 800, 480), Color.White);  //default window size? TBD
+                    //...then on to the lists
+                    for (int i = 0; i < mazeElements[MazeElement.ElementType.Cell].Count; i++)
+                    {
+                        //TODO
+                    }
+                    for (int i = 0; i < mazeElements[MazeElement.ElementType.Wall].Count; i++)
+                    {
+                        //TODO
+                    }
+                    for (int i = 0; i < mazeElements[MazeElement.ElementType.BreadcrumbTrail].Count; i++)
+                    {
+                        //TODO
+                    }
+                    for (int i = 0; i < mazeElements[MazeElement.ElementType.ShortestPath].Count; i++)
+                    {
+                        //TODO
+                    }                   
+                    for (int i = 0; i < mazeElements[MazeElement.ElementType.Hint].Count; i++)
+                    {
+                        //TODO
+                    }
+                    for (int i = 0; i < mazeElements[MazeElement.ElementType.Player].Count; i++)
+                    {
+                        //TODO
+                    }
+
+                    //Also, render the score, the timer, the keypresses...and w/e else
+                    // TODO
+
                     break;
                 case GameStates.PostGame:
-                    // ummmm...TBD.  menu, but over the last maze, maybe?
+                    // ummmm...TBD
+                    //TODO
                     break;
             }
             spriteBatch.End();

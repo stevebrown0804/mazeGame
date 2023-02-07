@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using mazeGame.GameElements.Base_classes;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
@@ -9,10 +10,10 @@ using System.Threading.Tasks;
 
 namespace mazeGame.GameElements
 {
-    internal class MenuElement : GameElement
+    internal class MenuElement : TextElement //GameElement
     {
         //per-element stuff
-        internal string text = "";
+        //internal string text = "";
         //...
 
         internal MenuElement(string text, Vector2 vec, Color color) {
