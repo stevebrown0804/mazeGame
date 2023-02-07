@@ -15,13 +15,22 @@ namespace maze
         private GraphicsDeviceManager _graphics;
         private SpriteBatch spriteBatch;
 
-        int mazeSize = 1;  //assuming the maze size will be square
-        List<GameElement> elements;
+        int mazeSize = 1;  //single coord because we're assuming the maze size will be square *thumbs up*
+        private SpriteFont font;
+        //List<GameElement> elements; //this one may jsut become a base class
+        //Menu...
         List<MenuElement> menuElements;
-        List<HighScoresElement> highScoresElements;
         bool isMenuSetUp = false;
         Menu menu;
-        private SpriteFont font;    //TMP, maybe? tbd
+        //...high scores...
+        List<HighScoresElement> highScoresElements;       
+        bool isHighScoresSetUp = false;
+        HighScores highScores;
+        //...credits...
+        List<CreditsElement> creditsElements;
+        bool isCreditsSetUp = false;
+        Credits credits;
+
 
         //stuff from MazeGenerator
         IMazeStorage maze;
@@ -49,10 +58,14 @@ namespace maze
             IsMouseVisible = true;
 
             //Initialize stuff I declared
-            gameState = GameStates.Menu;     //Guessing that's where we'll start
-            elements = new();
-            menuElements = new();
+            gameState = GameStates.Menu;    //Let's start here!
+            //elements = new();
+            menuElements = new();           //menu
             menu = new();
+            highScoresElements = new();     //high schore
+            highScores = new();
+            creditsElements = new();        //credits
+            credits = new();
             //IMazeStorage maze;
             //IMazeCreation mazeCreator;
             //Player player;
@@ -138,20 +151,43 @@ namespace maze
                     else if (Keyboard.GetState().IsKeyDown(Keys.F5))
                     {
                         gameState = GameStates.HighScores;
-                        //mazeSize = 20;
+                        isHighScoresSetUp = false;
                         menuElements.Clear();
                     }
                     else if (Keyboard.GetState().IsKeyDown(Keys.F6))
                     {
                         gameState = GameStates.Credits;
-                        //mazeSize = 20;
                         menuElements.Clear();
-                    }else if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed 
+                    }/*else if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed 
                                || Keyboard.GetState().IsKeyDown(Keys.Escape))
-                        Exit();
+                        Exit();*/
 
                     break;
                 case GameStates.HighScores:
+                    if (!isHighScoresSetUp)
+                    {
+                        highScores.SetupHighScores(highScoresElements);
+                        isHighScoresSetUp = true;
+                    }
+                    if (Keyboard.GetState().IsKeyDown(Keys.Escape))
+                    {
+                        gameState = GameStates.Menu;
+                        isMenuSetUp = false;
+                        highScoresElements.Clear();
+                    }
+                    break;
+                case GameStates.Credits:
+                    if (!isCreditsSetUp)
+                    {
+                        credits.SetupCredits(creditsElements);
+                        isCreditsSetUp = true;
+                    }
+                    if (Keyboard.GetState().IsKeyDown(Keys.Escape))
+                    {
+                        gameState = GameStates.Menu;
+                        isMenuSetUp = false;
+                        //creditsElements.Clear(); //only needs to be set up one time
+                    }
                     break;
                 case GameStates.InitializingGame:
                     break;
@@ -160,12 +196,6 @@ namespace maze
                 case GameStates.PostGame:
                     break;
             }
-
-
-
-            
-
-            // TODO: Add your update logic here
 
             base.Update(gameTime);
         }
@@ -183,6 +213,20 @@ namespace maze
                     for(int i = 0; i < menuElements.Count; i++)
                     {
                         MenuElement el = menuElements[i];
+                        spriteBatch.DrawString(font, el.text, el.coords, el.color);
+                    }
+                    break;
+                case (GameStates.HighScores):
+                    for (int i = 0; i < highScoresElements.Count; i++)
+                    {
+                        HighScoresElement el = highScoresElements[i];
+                        spriteBatch.DrawString(font, el.text, el.coords, el.color);
+                    }
+                    break;
+                case (GameStates.Credits):
+                    for (int i = 0; i < creditsElements.Count; i++)
+                    {
+                        CreditsElement el = creditsElements[i];
                         spriteBatch.DrawString(font, el.text, el.coords, el.color);
                     }
                     break;

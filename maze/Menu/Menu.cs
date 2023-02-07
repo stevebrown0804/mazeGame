@@ -12,8 +12,6 @@ namespace mazeGame.Menu
     {
         internal void SetupMenu(List<MenuElement> menuElements)
         {
-            //Console.WriteLine("In progress: setting up the menu.  Q. Where will this be displayed, if anywhere?");
-
             MenuElement el = new("F1: 5x5 maze", new Vector2(100, 100), Color.Black);
             menuElements.Add(el);
             el = new("F2: 10x10 maze", new Vector2(100, 150), Color.Black);
@@ -25,6 +23,8 @@ namespace mazeGame.Menu
             el = new("F5: Display High Scores", new Vector2(100, 300), Color.Black);
             menuElements.Add(el);
             el = new("F6: Display credits", new Vector2(100, 350), Color.Black);
+            menuElements.Add(el);
+            el = new("Alt-F4: Quit", new Vector2(100, 400), Color.Black);
             menuElements.Add(el);
         }
     }

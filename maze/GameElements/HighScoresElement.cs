@@ -10,7 +10,6 @@ namespace mazeGame.GameElements
 {
     internal class HighScoresElement : GameElement
     {
-
         internal string text = "";
 
         internal HighScoresElement(string text, Vector2 vec, Color color)
