@@ -28,6 +28,7 @@ namespace mazeGame.Setup.Maze
             mazeElements[MazeElement.ElementType.BreadcrumbTrail] = new List<MazeElement>();
             mazeElements[MazeElement.ElementType.ShortestPath] = new List<MazeElement>();
             mazeElements[MazeElement.ElementType.Hint] = new List<MazeElement>();
+            mazeElements[MazeElement.ElementType.Goal] = new List<MazeElement>();
             mazeElements[MazeElement.ElementType.Player] = new List<MazeElement>();
 
             //PASTED IN FROM MAZEGENERATRION
@@ -45,7 +46,7 @@ namespace mazeGame.Setup.Maze
 
             //And a maze-solver object
             /*IMazeSolver*/ solver = new MazeSolver();
-            solver = solver.Solve(mazeStorage, player);
+            solver = solver.Solve(mazeStorage, player);       //<---NOTE: temporarily (?) commented out
 
             //..and then render it
             //IMazeRenderer renderTarget = new RenderDictionaryToConsole();
@@ -77,16 +78,16 @@ namespace mazeGame.Setup.Maze
             switch (size)
             {
                 case 5:
-                    cellHeight = cellWidth = (1200 / 5);
+                    cellHeight = cellWidth = (game.windowSize.X / 5);
                     break;
                 case 10:
-                    cellHeight = cellWidth = (1200 / 10);
+                    cellHeight = cellWidth = (game.windowSize.X / 10);
                     break;
                 case 15:
-                    cellHeight = cellWidth = (1200 / 15);
+                    cellHeight = cellWidth = (game.windowSize.X / 15);
                     break;
                 case 20:
-                    cellHeight = cellWidth = (1200 / 20);
+                    cellHeight = cellWidth = (game.windowSize.X / 20);  //Note: all these numbers need to divide game.windowSize.X (and .Y).  (1200 seems like a good choice; (20*15) * 4, I think)
                     break;
                 default:
                     throw new Exception("Unrecognized maze size; size must be 5, 10, 15 or 20");
@@ -101,7 +102,6 @@ namespace mazeGame.Setup.Maze
                     int cell_x_right = col * cellWidth;
                     int cell_y_top = (row - 1) * cellHeight;
                     int cell_y_bottom = row * cellHeight;
-                    
 
                     string cell_str = $"r{row}c{col}";
                     if (dict[cell_str].wallBelow != null)
@@ -122,8 +122,25 @@ namespace mazeGame.Setup.Maze
 
                 }// inner for
 
-            //Then, if we should draw (?), do so...
+            //Then, if we should draw BreadcrumbTrail, do so...
             //TODO
+
+            //Then, if we should draw ShortestPath, do so...
+            //TODO
+
+            //Then, if we should draw Hint, do so...
+            //TODO
+
+            //Then we'll draw the goal...
+            //TODO
+
+            //Then, we'll draw the player
+            player.ResetPosition();
+            (int player_row, int player_col) = player.GetPosition();
+
+            el = new(game.player_sprite, MazeElement.CallType.Vector2,
+                                 new Vector2((player_row-1) * cellHeight, (player_col-1) * cellWidth), Color.White);
+            maze[MazeElement.ElementType.Player].Add(el);
 
 
         }//END SetupMaze()

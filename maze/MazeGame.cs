@@ -24,6 +24,7 @@ namespace maze
         public Texture2D yellow1x1;
         Texture2D cell_sprite;
         public Point windowSize = new(1200, 1200);     //NOTE: Setting the window size to 1200x1200
+        private KeyboardState prevState;
 
         //Menu...
         List<MenuElement> menuElements;
@@ -61,8 +62,8 @@ namespace maze
             IsMouseVisible = true;
 
             //Change the resolution
-            _graphics.PreferredBackBufferWidth = windowSize.X; //1200;  // set this value to the desired width of your window
-            _graphics.PreferredBackBufferHeight = windowSize.Y; // 1200;   // set this value to the desired height of your window
+            _graphics.PreferredBackBufferWidth = windowSize.X; //1200;
+            _graphics.PreferredBackBufferHeight = windowSize.Y; // 1200;
             _graphics.ApplyChanges();
 
             //Initialize stuff I declared
@@ -173,9 +174,17 @@ namespace maze
                     {
                         //TODO
                     }
-                    for (int i = 0; i < mazeElements[MazeElement.ElementType.Player].Count; i++)
+                    for (int i = 0; i < mazeElements[MazeElement.ElementType.Goal].Count; i++)
                     {
                         //TODO
+                    }
+                    for (int i = 0; i < mazeElements[MazeElement.ElementType.Player].Count; i++)
+                    {
+                        MazeElement el = mazeElements[MazeElement.ElementType.Player][i];
+                        if (el.callType == MazeElement.CallType.Vector2)
+                            spriteBatch.Draw(el.texture, el.coords, el.color);
+                        else //el.callType == Rectangle
+                            spriteBatch.Draw(el.texture, el.rect, el.color);
                     }
 
                     //Also, render the score, the timer, the keypresses...and w/e else
@@ -270,39 +279,74 @@ namespace maze
                     {
                         maze = new(mazeSize, mazeElements);
                         maze.SetupMaze(mazeSize, mazeElements, this);
-                        isMazeSetUp = true;
+                        //isMazeSetUp = true;                                        //TMP: commenting this out
                         gameState = GameStates.PlayingGame;
                     }
                     break;
                 case GameStates.PlayingGame:
-                    if (Keyboard.GetState().IsKeyDown(Keys.Up))     //TODO: wasd, ijkl
-                    {
-                        //TODO: up!
+                    //maze.mazeEle
+                    maze.SetupMaze(mazeSize, mazeElements, this);                   //TMP: Adding this here
 
-                        if (maze.player.IsAtGoal())
-                            gameState = GameStates.PostGame;
-                    }
-                    else if (Keyboard.GetState().IsKeyDown(Keys.Down))
-                    {
-                        //TODO: down!
+                    //STOLEN CODE!
+                    KeyboardState currentState = Keyboard.GetState();
 
-                        if (maze.player.IsAtGoal())
-                            gameState = GameStates.PostGame;
-                    }
-                    else if (Keyboard.GetState().IsKeyDown(Keys.Left))
+                    // handle the input
+                    /*if (prevState.IsKeyUp(Keys.Left) && currentState.IsKeyDown(Keys.Left))
                     {
-                        //TODO: left!
+                        // do something here
+                        // this will only be called when the key is first pressed
+                    }*/
 
-                        if (maze.player.IsAtGoal())
-                            gameState = GameStates.PostGame;
-                    }
-                    else if (Keyboard.GetState().IsKeyDown(Keys.Right))
+                    //END (for now) STOLEN CODE
+                    
+
+                    if (maze.player.IsAtGoal())
+                        gameState = GameStates.PostGame;
+
+                    if (prevState.IsKeyUp(Keys.Up) && currentState.IsKeyDown(Keys.Up))     //TODO: wasd, ijkl
                     {
-                        //TODO: right!
+                        //up!
+                        //TODO in a little bit: check for walls & out-of-bound conditions
+                        //...but for the moment:
+                        (int row, int col) = maze.player.GetPosition();
+                        maze.player.SetPosition(row - 1, col);
 
-                        if (maze.player.IsAtGoal())
-                            gameState = GameStates.PostGame;
                     }
+                    else if (prevState.IsKeyUp(Keys.Down) && currentState.IsKeyDown(Keys.Down))
+                    {
+                        //down!
+                        //TODO in a little bit: (see above)
+ 
+                        (int row, int col) = maze.player.GetPosition();
+                        maze.player.SetPosition(row + 1, col);
+                    }
+                    else if (prevState.IsKeyUp(Keys.Left) && currentState.IsKeyDown(Keys.Left))
+                    {
+                        //left!
+                        //TODO in a little bit: (see above)
+
+                        (int row, int col) = maze.player.GetPosition();
+                        maze.player.SetPosition(row, col - 1);
+                    }
+                    else if (prevState.IsKeyUp(Keys.Right) && currentState.IsKeyDown(Keys.Right))
+                    {
+                        //right!
+                        //TODO in a little bit: (see above)
+
+                        (int row, int col) = maze.player.GetPosition();
+                        maze.player.SetPosition(row, col + 1);
+                    }
+                    else if (prevState.IsKeyUp(Keys.Escape) && currentState.IsKeyDown(Keys.Escape))
+                    {
+                        //exit to menu
+                        gameState = GameStates.Menu;
+                        isMenuSetUp = false;
+                        mazeElements.Clear();
+                        isMazeSetUp = false;
+                    }
+                    //STOLEN CODE!
+                    prevState = currentState;
+                    //END STOLEN CODE
                     break;
                 case GameStates.PostGame:
                     //TODO: Figure out what we're going to do here
@@ -313,6 +357,8 @@ namespace maze
                     {
                         gameState = GameStates.Menu;
                         isMenuSetUp = false;
+                        mazeElements.Clear();
+                        isMazeSetUp = false;
                     }
                     //END TMP
                     break;

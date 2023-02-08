@@ -21,7 +21,7 @@
 
             internal Position(IMazeStorage maze)
             {
-                (row, col) = maze.GetRowsAndColumns();
+                (this.row, this.col) = maze.GetRowsAndColumns();                
             }
         }
 
@@ -35,12 +35,29 @@
             this.maze = maze;
             goal = new Position(maze);
             startingPoint = new Position(); //(1,1)
-            position = new Position();
+            position = new Position(startingPoint.row, startingPoint.col);
         }
 
         public bool IsAtGoal()
         {
             return goal.row == position.row && goal.col == position.col;
+        }
+
+        public (int, int) GetPosition()
+        {
+            return (position.row, position.col);
+        }
+
+        public void SetPosition(int row, int col)
+        {
+            position.row = row;
+            position.col = col;
+        }
+
+        public void ResetPosition()
+        {
+            position.row = startingPoint.row;
+            position.col = startingPoint.col;
         }
     }    
 }

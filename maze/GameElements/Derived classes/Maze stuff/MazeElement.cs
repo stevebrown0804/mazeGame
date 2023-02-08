@@ -26,7 +26,8 @@ namespace mazeGame.GameElements.Derived_classes
             Player,
             ShortestPath,
             BreadcrumbTrail,
-            Hint
+            Hint,
+            Goal
         }
 
         internal enum CallType
