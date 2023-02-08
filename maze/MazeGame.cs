@@ -97,7 +97,7 @@ namespace maze
             background = Content.Load<Texture2D>("galaxy-background");
             player_sprite = Content.Load<Texture2D>("player");
             yellow1x1 = Content.Load<Texture2D>("yellow1x1");
-            cell_sprite = Content.Load<Texture2D>("cell-placeholder"); ;
+            //cell_sprite = Content.Load<Texture2D>("cell-placeholder"); ;
 
             // TODO: use this.Content to load your game content here
         }

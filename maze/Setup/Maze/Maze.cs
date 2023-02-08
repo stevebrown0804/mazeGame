@@ -37,8 +37,8 @@ namespace mazeGame.Setup.Maze
             mazeStorage = new MazeStorage_Dictionary(size, size);
 
             //Next up, we'll create a maze using a specific routine            
-            //IMazeCreation mazeCreator = new DepthFirst_Iterative();
-            /*IMazeCreation*/ mazeCreator = new Prims();
+            /*IMazeCreation*/ mazeCreator = new DepthFirst_Iterative();
+            // /*IMazeCreation*/ mazeCreator = new Prims();
             mazeStorage = mazeStorage.CreateMaze(mazeCreator);
 
             //We'll create a player object
@@ -97,7 +97,8 @@ namespace mazeGame.Setup.Maze
                     cellHeight = cellWidth = (game.windowSize.X / 15);
                     break;
                 case 20:
-                    cellHeight = cellWidth = (game.windowSize.X / 20);  //Note: all these numbers need to divide game.windowSize.X (and .Y).  (1200 seems like a good choice; (20*15) * 4, I think)
+                    cellHeight = cellWidth = (game.windowSize.X / 20);  //Note: all these numbers need to divide game.windowSize.X (and .Y).
+                                                                        //  (1200 seems like a good choice; (20*15) * 4, I think)
                     break;
                 default:
                     throw new Exception("Unrecognized maze size; size must be 5, 10, 15 or 20");
@@ -129,7 +130,6 @@ namespace mazeGame.Setup.Maze
                         maze[MazeElement.ElementType.Wall].Add(el);
 
                     }
-
                 }// inner for
 
             //Then, if we should draw BreadcrumbTrail, do so...
@@ -145,7 +145,6 @@ namespace mazeGame.Setup.Maze
             //TODO
 
             //Then, we'll draw the player
-            //player.ResetPosition();
             (int player_row, int player_col) = player.GetPosition();
             el = new(game.player_sprite, MazeElement.CallType.Vector2,
                         new Vector2((player_col - 1) * cellWidth, (player_row - 1) * cellHeight), 

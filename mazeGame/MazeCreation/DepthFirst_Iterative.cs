@@ -53,7 +53,7 @@ harm.
 
 namespace mazeGenerator
 {
-    internal class DepthFirst_Iterative : IMazeCreation
+    public class DepthFirst_Iterative : IMazeCreation
     {
 
         static bool UnvisitedNeighborsDictIsAllTrue(Dictionary<int, bool> dict)
