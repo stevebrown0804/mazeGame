@@ -46,7 +46,7 @@ namespace mazeGame.Setup.Maze
 
             //And a maze-solver object
             /*IMazeSolver*/ solver = new MazeSolver();
-            solver = solver.Solve(mazeStorage, player);       //<---NOTE: temporarily (?) commented out
+            solver = solver.Solve(mazeStorage, player);
 
             //..and then render it
             //IMazeRenderer renderTarget = new RenderDictionaryToConsole();
@@ -56,7 +56,17 @@ namespace mazeGame.Setup.Maze
             //END PASTED IN etc.
         }
 
+
+
         internal void SetupMaze(int size, Dictionary<MazeElement.ElementType, List<MazeElement>> maze, MazeGame game)
+        {
+            //One-time stuff:
+
+            player.ResetPosition();
+
+        }//END SetupMaze()
+
+        public void MakeMaze(int size, Dictionary<MazeElement.ElementType, List<MazeElement>> maze, MazeGame game)
         {
             //Set up the maze (ie. render it from one dictionary to a dictionary of 6 lists)
             Dictionary<string, CellsAndWalls> dict = mazeStorage.GetDict();
@@ -73,8 +83,8 @@ namespace mazeGame.Setup.Maze
             el = new(game.yellow1x1, MazeElement.CallType.Rectangle, new Rectangle(800-2, 0, 2, 480), Color.White);
             maze[MazeElement.ElementType.Wall].Add(el);*/
 
-            int cellHeight; // = 60;
-            int cellWidth; // = 60;
+            int cellHeight;
+            int cellWidth;
             switch (size)
             {
                 case 5:
@@ -96,7 +106,7 @@ namespace mazeGame.Setup.Maze
 
             //Then, for each cell, we'll evaluate whether there should be walls drawn
             for (int row = 1; row <= size; row++)
-                for(int col = 1; col <= size; col++)
+                for (int col = 1; col <= size; col++)
                 {
                     int cell_x_left = (col - 1) * cellWidth;
                     int cell_x_right = col * cellWidth;
@@ -107,7 +117,7 @@ namespace mazeGame.Setup.Maze
                     if (dict[cell_str].wallBelow != null)
                     {
                         //add the wall below the current cell
-                        el = new(game.yellow1x1, MazeElement.CallType.Rectangle, 
+                        el = new(game.yellow1x1, MazeElement.CallType.Rectangle,
                                  new Rectangle(cell_x_left, cell_y_bottom - wallThickness / 2, cellWidth, wallThickness), Color.White);
                         maze[MazeElement.ElementType.Wall].Add(el);
                     }
@@ -135,15 +145,14 @@ namespace mazeGame.Setup.Maze
             //TODO
 
             //Then, we'll draw the player
-            player.ResetPosition();
+            //player.ResetPosition();
             (int player_row, int player_col) = player.GetPosition();
-
             el = new(game.player_sprite, MazeElement.CallType.Vector2,
-                                 new Vector2((player_row-1) * cellHeight, (player_col-1) * cellWidth), Color.White);
+                        new Vector2((player_col - 1) * cellWidth, (player_row - 1) * cellHeight), 
+                        Color.White);
             maze[MazeElement.ElementType.Player].Add(el);
 
-
-        }//END SetupMaze()
+        }//END MakeMaze()
 
     }//END class maze
 }

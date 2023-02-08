@@ -10,22 +10,5 @@ namespace mazeGame
         internal Texture2D texture;
         internal Rectangle rect;
         internal Color color;
-
-        //per-element stuff
-        //string text = "";
-        //...
-
-        /*enum ElementType        //NOTE: not in use atm; using separate lists instead
-        {
-            unset = 0,
-            Text,
-            Cell,
-            Wall,
-            Player,
-            ShortestPath,
-            BreadcrumbTrail,
-            Hint
-        }*/
-        //internal ElementType eleType;
     }
 }

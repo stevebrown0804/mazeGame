@@ -22,7 +22,7 @@ namespace maze
         public Texture2D background;
         public Texture2D player_sprite;
         public Texture2D yellow1x1;
-        Texture2D cell_sprite;
+        //Texture2D cell_sprite;
         public Point windowSize = new(1200, 1200);     //NOTE: Setting the window size to 1200x1200
         private KeyboardState prevState;
 
@@ -39,7 +39,7 @@ namespace maze
         bool isCreditsSetUp = false;
         Credits credits;
         //...maze...
-        Dictionary<MazeElement.ElementType, List<MazeElement>> mazeElements;        //<--notice: different!
+        Dictionary<MazeElement.ElementType, List<MazeElement>> mazeElements;
         bool isMazeSetUp = false;
         Maze maze;
 
@@ -147,7 +147,7 @@ namespace maze
                     //Render the maze                    
                     //..starting with the background:
                     //  TODO, MAYBE: have multiple background sprites and randomly choose one
-                    spriteBatch.Draw(background, new Rectangle(0, 0, windowSize.X, windowSize.Y), Color.White);  //default window size? TBD
+                    spriteBatch.Draw(background, new Rectangle(0, 0, windowSize.X, windowSize.Y), Color.White);
 
                     //...then on to the lists
                     for (int i = 0; i < mazeElements[MazeElement.ElementType.Cell].Count; i++)
@@ -164,19 +164,35 @@ namespace maze
                     }
                     for (int i = 0; i < mazeElements[MazeElement.ElementType.BreadcrumbTrail].Count; i++)
                     {
-                        //TODO
+                        MazeElement el = mazeElements[MazeElement.ElementType.BreadcrumbTrail][i];
+                        if (el.callType == MazeElement.CallType.Vector2)
+                            spriteBatch.Draw(el.texture, el.coords, el.color);
+                        else //el.callType == Rectangle
+                            spriteBatch.Draw(el.texture, el.rect, el.color);
                     }
                     for (int i = 0; i < mazeElements[MazeElement.ElementType.ShortestPath].Count; i++)
                     {
-                        //TODO
+                        MazeElement el = mazeElements[MazeElement.ElementType.ShortestPath][i];
+                        if (el.callType == MazeElement.CallType.Vector2)
+                            spriteBatch.Draw(el.texture, el.coords, el.color);
+                        else //el.callType == Rectangle
+                            spriteBatch.Draw(el.texture, el.rect, el.color);
                     }                   
                     for (int i = 0; i < mazeElements[MazeElement.ElementType.Hint].Count; i++)
                     {
-                        //TODO
+                        MazeElement el = mazeElements[MazeElement.ElementType.Hint][i];
+                        if (el.callType == MazeElement.CallType.Vector2)
+                            spriteBatch.Draw(el.texture, el.coords, el.color);
+                        else //el.callType == Rectangle
+                            spriteBatch.Draw(el.texture, el.rect, el.color);
                     }
                     for (int i = 0; i < mazeElements[MazeElement.ElementType.Goal].Count; i++)
                     {
-                        //TODO
+                        MazeElement el = mazeElements[MazeElement.ElementType.Goal][i];
+                        if (el.callType == MazeElement.CallType.Vector2)
+                            spriteBatch.Draw(el.texture, el.coords, el.color);
+                        else //el.callType == Rectangle
+                            spriteBatch.Draw(el.texture, el.rect, el.color);
                     }
                     for (int i = 0; i < mazeElements[MazeElement.ElementType.Player].Count; i++)
                     {
@@ -204,6 +220,8 @@ namespace maze
 
         private void ProcessInput(GameTime gameTime)
         {
+            KeyboardState currentState = Keyboard.GetState();
+
             switch (gameState)
             {
                 case (GameStates.Menu):
@@ -212,7 +230,7 @@ namespace maze
                         menu.SetupMenu(menuElements);
                         isMenuSetUp = true;
                     }   //A thought: Could do this with another state (eg. MenuSetup)
-                    if (Keyboard.GetState().IsKeyDown(Keys.F1))
+                    if (Keyboard.GetState().IsKeyDown(Keys.F1))                     //TODO: Update all KeyDowns to the (prev==down, cur==up) type
                     {
                         gameState = GameStates.InitializingGame;
                         mazeSize = 5;
@@ -247,6 +265,10 @@ namespace maze
                         gameState = GameStates.Credits;
                         menuElements.Clear();
                     }
+                    else if(prevState.IsKeyUp(Keys.Escape) && currentState.IsKeyDown(Keys.Escape))
+                    {
+                        Exit();
+                    }
 
                     break;
                 case GameStates.HighScores:
@@ -279,31 +301,20 @@ namespace maze
                     {
                         maze = new(mazeSize, mazeElements);
                         maze.SetupMaze(mazeSize, mazeElements, this);
-                        //isMazeSetUp = true;                                        //TMP: commenting this out
+                        isMazeSetUp = true;                                       
                         gameState = GameStates.PlayingGame;
                     }
                     break;
                 case GameStates.PlayingGame:
-                    //maze.mazeEle
-                    maze.SetupMaze(mazeSize, mazeElements, this);                   //TMP: Adding this here
+                    //Empty out the maze dict's lists then re-make the current maze
+                    EmptyMazeElementsLists();
+                    maze.MakeMaze(mazeSize, mazeElements, this);
 
-                    //STOLEN CODE!
-                    KeyboardState currentState = Keyboard.GetState();
-
-                    // handle the input
-                    /*if (prevState.IsKeyUp(Keys.Left) && currentState.IsKeyDown(Keys.Left))
-                    {
-                        // do something here
-                        // this will only be called when the key is first pressed
-                    }*/
-
-                    //END (for now) STOLEN CODE
-                    
-
-                    if (maze.player.IsAtGoal())
+                    if (maze.player.IsAtGoal())     //check to see if we're done
                         gameState = GameStates.PostGame;
 
-                    if (prevState.IsKeyUp(Keys.Up) && currentState.IsKeyDown(Keys.Up))     //TODO: wasd, ijkl
+                    //...then handle keypresses
+                    if (prevState.IsKeyUp(Keys.Up) && currentState.IsKeyDown(Keys.Up))              //TODO: wasd, ijkl
                     {
                         //up!
                         //TODO in a little bit: check for walls & out-of-bound conditions
@@ -344,16 +355,14 @@ namespace maze
                         mazeElements.Clear();
                         isMazeSetUp = false;
                     }
-                    //STOLEN CODE!
-                    prevState = currentState;
-                    //END STOLEN CODE
                     break;
                 case GameStates.PostGame:
                     //TODO: Figure out what we're going to do here
                     // eg. Write some 'congrats' text, wait for ESC to be pressed, return to menu
 
-                    //TMP-to-perm
-                    if (Keyboard.GetState().IsKeyDown(Keys.Escape))
+                     //TMP-to-perm
+                    //if (Keyboard.GetState().IsKeyDown(Keys.Escape))
+                    if(prevState.IsKeyUp(Keys.Escape) && currentState.IsKeyDown(Keys.Escape))
                     {
                         gameState = GameStates.Menu;
                         isMenuSetUp = false;
@@ -365,7 +374,20 @@ namespace maze
 
             }//END switch (gameState)
 
+            prevState = currentState;   //set prevState to the current keyboard state
+
         }//END ProcessInput()
+
+        internal void EmptyMazeElementsLists()
+        {
+            mazeElements[MazeElement.ElementType.Cell].Clear();
+            mazeElements[MazeElement.ElementType.Wall].Clear();
+            mazeElements[MazeElement.ElementType.Player].Clear();
+            mazeElements[MazeElement.ElementType.ShortestPath].Clear();
+            mazeElements[MazeElement.ElementType.BreadcrumbTrail].Clear();
+            mazeElements[MazeElement.ElementType.Hint].Clear();
+            mazeElements[MazeElement.ElementType.Goal].Clear();
+        }
 
     }//END class MazeGame
 
