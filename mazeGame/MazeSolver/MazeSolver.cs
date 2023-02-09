@@ -16,7 +16,7 @@ namespace mazeGenerator
             shortestPath = new();
         }
 
-        public IMazeSolver Solve(IMazeStorage maze, Player player)
+        public IMazeSolver Solve(IMazeStorage maze, Player player, SolverStartingPoint startingPoint)
         {
             //We'll want to find the shortest path from wherever the player current is, to the end
             //  We'll define "end" as lower-right corner.
@@ -40,7 +40,20 @@ namespace mazeGenerator
             //
             Queue<CellsAndWalls> q = new();
 
-            string str_Start = $"r{player.startingPoint.row}c{player.startingPoint.col}";
+            string str_Start;
+            if (startingPoint == SolverStartingPoint.PlayerStartingPoint)
+            {
+                str_Start = $"r{player.startingPoint.row}c{player.startingPoint.col}";
+            }
+            else if (startingPoint == SolverStartingPoint.PlayerPosition)
+            {
+                str_Start = $"r{player.position.row}c{player.position.col}";
+            }
+            else
+            {
+                throw new Exception("MAzeSolver.Solve says: Invalid SolverStartingPoint.");
+            }
+            
             q.Enqueue(dict[str_Start]);
             visited[str_Start] = true;
 

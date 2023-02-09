@@ -24,8 +24,10 @@ namespace mazeGame.Menu
             menuElements.Add(el);
             el = new("F6: Display credits", new Vector2(100, 350), Color.Black);
             menuElements.Add(el);
-            el = new("Alt-F4: Quit", new Vector2(100, 400), Color.Black);
+            el = new("Escape (or Alt-F4): Quit", new Vector2(100, 400), Color.Black);
             menuElements.Add(el);
+
+            //TODO: Add lines for the in-game keys: ((b)readcrumb trail, (p)ath and (h)int)
         }
     }
 }

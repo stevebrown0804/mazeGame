@@ -19,6 +19,7 @@ namespace mazeGame.Setup.Maze
         internal IMazeCreation mazeCreator;
         internal Player player;
         internal IMazeSolver solver;
+        List<CellsAndWalls> oneTruePath;
 
         internal Dictionary<string, bool> visitedCells;
 
@@ -35,32 +36,13 @@ namespace mazeGame.Setup.Maze
             mazeElements[MazeElement.ElementType.Goal] = new List<MazeElement>();
             mazeElements[MazeElement.ElementType.Player] = new List<MazeElement>();
 
-            //PASTED IN FROM MAZEGENERATRION
-            //First we'll create the starting point for the maze
-            /*IMazeStorage*/
-            mazeStorage = new MazeStorage_Dictionary(size, size);
-
-            //Next up, we'll create a maze using a specific routine            
-            ///*IMazeCreation*/ mazeCreator = new DepthFirst_Iterative();
-            /*IMazeCreation*/ mazeCreator = new Prims();
+            mazeStorage = new MazeStorage_Dictionary(size, size);          
+            // mazeCreator = new DepthFirst_Iterative();        //Comment out Prims and uncomment this to change the maze-generation algorithm!
+            mazeCreator = new Prims();
             mazeStorage = mazeStorage.CreateMaze(mazeCreator);
-
-            //We'll create a player object
-            /*Player*/ player = new(mazeStorage);
-
-            //And a maze-solver object
-            /*IMazeSolver*/ solver = new MazeSolver();
-            //solver = solver.Solve(mazeStorage, player);     
-                //TODO: Defer this until we've confirmed that the player wants to see the shortest path (or a hint)
-
-            //..and then render it
-            //IMazeRenderer renderTarget = new RenderDictionaryToConsole();
-            //IMazeRenderer renderTarget = new RenderDictionaryToFile();
-            //maze.Render(renderTarget, solver);
-            //maze.Render(renderTarget);
-            //END PASTED IN etc.
+            player = new(mazeStorage);
+            solver = new MazeSolver();
         }
-
 
 
         internal void SetupMaze(int size, Dictionary<MazeElement.ElementType, List<MazeElement>> maze, MazeGame game)
@@ -69,10 +51,22 @@ namespace mazeGame.Setup.Maze
             player.ResetPosition();
             player.ResetVisitedCellsDictionary();
             visitedCells = player.GetVisitedCellsDict();
+
             //Set (1,1) (or w/e the starting point is) to 'true' in the 'visitedCells' dictionary
             (int row, int col) = player.GetPosition();
             visitedCells[$"r{row}c{col}"] = true;
 
+            //Get the shortest path from 1,1 to goal
+            solver = solver.Solve(mazeStorage, player, SolverStartingPoint.PlayerStartingPoint);
+            List<CellsAndWalls> tmpList =  solver.GetShortestPath();        //Q. Will it be changed next time we run solver?  TBD!
+                                                                            // (In which case we'll just make a copy)
+            oneTruePath = new();
+            for(int i = 0; i < tmpList.Count; i++)
+            {
+                oneTruePath.Add(tmpList[i]);
+            }
+            
+            player.SetPosition(row, col); //right...sovler uses player's position to do its thing.  I should change that.  maybe.
         }//END SetupMaze()
 
         public void MakeMaze(int size, Dictionary<MazeElement.ElementType, List<MazeElement>> maze, MazeGame game)
@@ -80,6 +74,8 @@ namespace mazeGame.Setup.Maze
             //Set up the maze (ie. render it from one dictionary to a dictionary of 6 lists)
             Dictionary<string, CellsAndWalls> dict = mazeStorage.GetDict();
             MazeElement el;
+            int player_row;
+            int player_col;
 
             //First, we'll add the outer walls                                        //<--on hold, for now
             /*el = new(game.yellow1x1, MazeElement.CallType.Rectangle, new Rectangle(0, 0, 800, 2), Color.White);
@@ -141,8 +137,8 @@ namespace mazeGame.Setup.Maze
                     }
                 }// inner for
 
-            //Then, if we should draw BreadcrumbTrail, do so...
-            if (game.showBreadcrumbTrail)                                                                            //IN PROGRESS
+            //Then, if we should draw a BreadcrumbTrail, do so...
+            if (game.showBreadcrumbTrail)
             {
                 (int rows, int cols) = mazeStorage.GetRowsAndColumns();
                 Dictionary<string, bool> hasCellBeenVisited = player.GetVisitedCellsDict();
@@ -161,11 +157,41 @@ namespace mazeGame.Setup.Maze
                     }
             }
 
-            //Then, if we should draw ShortestPath, do so...
-            //TODO
+            //Then, if we should draw the ShortestPath, do so...
+            if (game.showShortestPath)                                                                      
+            {
+                //Let's just have this render the 'one true path' (aka r1c1 to goal)
+                for (int i = 0; i < oneTruePath.Count(); i++)
+                {
+                    int currentRow = oneTruePath[i].cell.row;
+                    int currentCol = oneTruePath[i].cell.col;
+                    string str = $"r{currentRow}c{currentCol}";
+                    el = new(game.yellow1x1, CallType.Rectangle,
+                             new Rectangle((currentCol - 1) * cellWidth, (currentRow - 1) * cellHeight, cellWidth, cellHeight),
+                             Color.White);
+                    maze[MazeElement.ElementType.ShortestPath].Add(el);
+                }
+            }
 
-            //Then, if we should draw Hint, do so...
-            //TODO
+            //Then, if we should draw a Hint, do so...
+            if (game.showHint)
+            {
+                //Let's use solver to get the shortest path from the current position to the goal, then show the 0th (1st?) step
+                (player_row, player_col) = player.GetPosition();
+                solver = solver.Solve(mazeStorage, player, SolverStartingPoint.PlayerPosition);   
+                
+                List<CellsAndWalls> shortestPath = solver.GetShortestPath();
+                int row = shortestPath[1].cell.row;
+                int col = shortestPath[1].cell.col;
+
+                el = new(game.red1x1, CallType.Rectangle,
+                             new Rectangle((col - 1) * cellWidth, (row - 1) * cellHeight, cellWidth, cellHeight),
+                             Color.White);
+                maze[MazeElement.ElementType.Hint].Add(el);
+
+                player.SetPosition(player_row, player_col); //and restore the player's position
+            }
+
 
             //Then we'll draw the goal...
             (int goalRow, int goalCol) = player.GetGoalPosition();
@@ -173,7 +199,7 @@ namespace mazeGame.Setup.Maze
             maze[MazeElement.ElementType.Goal].Add(el);
 
             //Then, we'll draw the player
-            (int player_row, int player_col) = player.GetPosition();
+            (player_row, player_col) = player.GetPosition();
             el = new(game.player_sprite, CallType.Vector2,
                         new Vector2((player_col - 1) * cellWidth, (player_row - 1) * cellHeight), 
                         Color.White);

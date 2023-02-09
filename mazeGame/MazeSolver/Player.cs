@@ -40,9 +40,7 @@
             position = new Position(startingPoint.row, startingPoint.col);
 
             visitedCells = new();
-            ResetVisitedCellsDictionary();
-            /*string str = $"r{startingPoint.row}c{startingPoint.col}";       //Is this too soon for this? TBD    <--seems to be
-            visitedCells[str] = true;*/
+            ResetVisitedCellsDictionary();  //reset(/initialize)
         }
 
         public static bool IsMoveAllowed(IMazeStorage mazeStorage, Player player, int targetRow, int targetCol)

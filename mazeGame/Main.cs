@@ -22,7 +22,7 @@ namespace mazeGenerator
             
             //And a maze-solver object
             IMazeSolver solver = new MazeSolver();
-            solver = solver.Solve(maze, player);
+            solver = solver.Solve(maze, player, SolverStartingPoint.PlayerStartingPoint);
 
             //..and then render it
             IMazeRenderer renderTarget = new RenderDictionaryToConsole();

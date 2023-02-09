@@ -14,6 +14,8 @@ namespace mazeGame.Menu
     {
         internal void SetupCredits(List<CreditsElement> creditsElements)
         {
+            //TODO, MAYBE: Add a background rectangle (ie black1x1) and change the font color (ie white)
+
             CreditsElement el = new("Game by Steve Brown.", new Vector2(100, 100), Color.Black);
             creditsElements.Add(el);
             el = new("(Press Escape to return to menu)", new Vector2(100, 150), Color.Black);

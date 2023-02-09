@@ -26,6 +26,7 @@ namespace maze
         public Texture2D yellow1x1;
         public Texture2D black1x1;
         public Texture2D purple1x1;
+        public Texture2D red1x1;
         public Texture2D goal_marker;
         //Texture2D cell_sprite;
         public Point windowSize = new(1200, 1200);     //NOTE: Setting the window size to 1200x1200
@@ -53,9 +54,9 @@ namespace maze
         PostGame postGame;
 
         //more bools!
-        internal bool showBreadcrumbTrail = false; //TODO: implement!
-        internal bool showShortestPath = false; //TODO: implement!
-        internal bool showHint = false; //TODO: implement!
+        internal bool showBreadcrumbTrail = false;
+        internal bool showShortestPath = false;
+        internal bool showHint = false;
 
         enum GameStates
         {
@@ -115,6 +116,7 @@ namespace maze
             yellow1x1 = Content.Load<Texture2D>("yellow1x1");
             black1x1 = Content.Load<Texture2D>("black1x1");
             purple1x1 = Content.Load<Texture2D>("purple1x1");
+            red1x1 = Content.Load<Texture2D>("red1x1");
             goal_marker = Content.Load<Texture2D>("goal-marker");
             //cell_sprite = Content.Load<Texture2D>("cell-placeholder"); ;
 
@@ -179,6 +181,14 @@ namespace maze
                         else //el.callType == Rectangle
                             spriteBatch.Draw(el.texture, el.rect, el.color);
                     }
+                    for (int i = 0; i < mazeElements[MazeElement.ElementType.ShortestPath].Count; i++)
+                    {
+                        MazeElement el = mazeElements[MazeElement.ElementType.ShortestPath][i];
+                        if (el.callType == CallType.Vector2)
+                            spriteBatch.Draw(el.texture, el.coords, el.color);
+                        else //el.callType == Rectangle
+                            spriteBatch.Draw(el.texture, el.rect, el.color);
+                    }
                     for (int i = 0; i < mazeElements[MazeElement.ElementType.BreadcrumbTrail].Count; i++)
                     {
                         MazeElement el = mazeElements[MazeElement.ElementType.BreadcrumbTrail][i];
@@ -187,14 +197,6 @@ namespace maze
                         else //el.callType == Rectangle
                             spriteBatch.Draw(el.texture, el.rect, el.color);
                     }
-                    for (int i = 0; i < mazeElements[MazeElement.ElementType.ShortestPath].Count; i++)
-                    {
-                        MazeElement el = mazeElements[MazeElement.ElementType.ShortestPath][i];
-                        if (el.callType == CallType.Vector2)
-                            spriteBatch.Draw(el.texture, el.coords, el.color);
-                        else //el.callType == Rectangle
-                            spriteBatch.Draw(el.texture, el.rect, el.color);
-                    }                   
                     for (int i = 0; i < mazeElements[MazeElement.ElementType.Hint].Count; i++)
                     {
                         MazeElement el = mazeElements[MazeElement.ElementType.Hint][i];
@@ -220,7 +222,7 @@ namespace maze
                             spriteBatch.Draw(el.texture, el.rect, el.color);
                     }
 
-                    //TODO Also, render the score, the timer, the keypres legend...and w/e else
+                    //TODO Also, render the score, the timer, the keypress legend...and w/e else
 
 
                     break;
@@ -372,7 +374,7 @@ namespace maze
                         credits.SetupCredits(creditsElements);
                         isCreditsSetUp = true;
                     }
-                    if (Keyboard.GetState().IsKeyDown(Keys.Escape))
+                    if (prevState.IsKeyUp(Keys.Escape) && currentState.IsKeyDown(Keys.Escape))
                     {
                         gameState = GameStates.Menu;
                         isMenuSetUp = false;
@@ -404,6 +406,7 @@ namespace maze
                         {
                             maze.player.SetPosition(row - 1, col);
                             maze.player.SetCellAsVisited(row - 1, col);
+                            showHint = false;
                         }                 
                             
                      }
@@ -415,6 +418,7 @@ namespace maze
                         {
                             maze.player.SetPosition(row + 1, col);
                             maze.player.SetCellAsVisited(row + 1, col);
+                            showHint = false;
                         }
                     }
                     else if (prevState.IsKeyUp(Keys.Left) && currentState.IsKeyDown(Keys.Left))
@@ -425,6 +429,7 @@ namespace maze
                         {
                             maze.player.SetPosition(row, col - 1);
                             maze.player.SetCellAsVisited(row, col - 1);
+                            showHint = false;
                         }                            
                     }
                     else if (prevState.IsKeyUp(Keys.Right) && currentState.IsKeyDown(Keys.Right))
@@ -435,6 +440,7 @@ namespace maze
                         {
                             maze.player.SetPosition(row, col + 1);
                             maze.player.SetCellAsVisited(row, col + 1);
+                            showHint = false;
                         }
                     }
                     else if (prevState.IsKeyUp(Keys.B) && currentState.IsKeyDown(Keys.B))
@@ -443,6 +449,20 @@ namespace maze
                             showBreadcrumbTrail = true;
                         else
                             showBreadcrumbTrail = false;
+                    }
+                    else if (prevState.IsKeyUp(Keys.P) && currentState.IsKeyDown(Keys.P))
+                    {
+                        if (!showShortestPath)
+                            showShortestPath = true;
+                        else
+                            showShortestPath = false;
+                    }
+                    else if (prevState.IsKeyUp(Keys.H) && currentState.IsKeyDown(Keys.H))
+                    {
+                        if (!showHint)
+                            showHint = true;
+                        else
+                            showHint = false;
                     }
                     else if (prevState.IsKeyUp(Keys.Escape) && currentState.IsKeyDown(Keys.Escape))
                     {

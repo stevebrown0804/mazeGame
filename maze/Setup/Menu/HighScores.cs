@@ -14,6 +14,7 @@ namespace mazeGame.Menu
     {
         internal void SetupHighScores(List<HighScoresElement> highScoresElements)
         {
+            //TODO: Finish this
             HighScoresElement el = new("High scores:", new Vector2(100, 100), Color.Black);
             highScoresElements.Add(el);
             el = new("TODO", new Vector2(100, 150), Color.Black);
