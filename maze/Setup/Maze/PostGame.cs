@@ -13,9 +13,9 @@ namespace mazeGame.Setup.Maze
 {
     internal class PostGame
     {
-        internal void SetUpPostGame(List<PostGameElement> postGameElements, MazeGame mazeGame)
+        internal void SetUpPostGame(List<MazeTextElement> postGameElements, MazeGame mazeGame)
         {
-            PostGameElement el;
+            MazeTextElement el;
             el = new(RenderType.UI, CallType.Rectangle, mazeGame.black1x1, new Rectangle(400, 400, 700, 400), Color.White);
             postGameElements.Add(el);
             el = new(RenderType.Text, "Congratulations", 

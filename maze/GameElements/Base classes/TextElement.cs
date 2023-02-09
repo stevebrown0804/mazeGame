@@ -8,7 +8,7 @@ namespace mazeGame.GameElements.Base_classes
 {
     internal enum RenderType
     {
-        unset = 0,
+        //unset = 0,
         UI,
         Text
     }

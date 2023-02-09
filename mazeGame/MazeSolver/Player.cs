@@ -29,6 +29,7 @@
         internal Position goal;
         internal Position startingPoint;
         internal Position position;
+        internal int score;
 
         Dictionary<string, bool> visitedCells;
 
@@ -38,6 +39,7 @@
             goal = new Position(maze);
             startingPoint = new Position(); //(1,1)
             position = new Position(startingPoint.row, startingPoint.col);
+            score = 0;                                                                                      //IN PROGRESS
 
             visitedCells = new();
             ResetVisitedCellsDictionary();  //reset(/initialize)
@@ -92,7 +94,6 @@
             return (goal.row, goal.col);
         }
 
-
         public (int, int) GetPosition()
         {
             return (position.row, position.col);
@@ -127,6 +128,16 @@
             {
                 visitedCells[k] = false;
             }
+        }
+
+        public int GetScore()
+        {
+            return score;
+        }
+
+        public void SetScore(int score)
+        {
+            this.score = score;
         }
 
     } //END class Player 

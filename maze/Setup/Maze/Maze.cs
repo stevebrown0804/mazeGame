@@ -5,11 +5,13 @@ using System;
 using System.Collections.Generic;
 //using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+/*using System.Text;
+using System.Threading.Tasks;*/
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System.ComponentModel.Design;
+//using System.ComponentModel.Design;
+using mazeGame.GameElements.Base_classes;
+using mazeGame.GameElements.Derived_classes.Maze_stuff;
 
 namespace mazeGame.Setup.Maze
 {
@@ -58,8 +60,7 @@ namespace mazeGame.Setup.Maze
 
             //Get the shortest path from 1,1 to goal
             solver = solver.Solve(mazeStorage, player, SolverStartingPoint.PlayerStartingPoint);
-            List<CellsAndWalls> tmpList =  solver.GetShortestPath();        //Q. Will it be changed next time we run solver?  TBD!
-                                                                            // (In which case we'll just make a copy)
+            List<CellsAndWalls> tmpList =  solver.GetShortestPath();
             oneTruePath = new();
             for(int i = 0; i < tmpList.Count; i++)
             {
@@ -73,24 +74,15 @@ namespace mazeGame.Setup.Maze
         {
             //Set up the maze (ie. render it from one dictionary to a dictionary of 6 lists)
             Dictionary<string, CellsAndWalls> dict = mazeStorage.GetDict();
-            MazeElement el;
             int player_row;
             int player_col;
-
-            //First, we'll add the outer walls                                        //<--on hold, for now
-            /*el = new(game.yellow1x1, MazeElement.CallType.Rectangle, new Rectangle(0, 0, 800, 2), Color.White);
-            maze[MazeElement.ElementType.Wall].Add(el);
-            el = new(game.yellow1x1, MazeElement.CallType.Rectangle, new Rectangle(0, 0, 2, 480), Color.White);
-            maze[MazeElement.ElementType.Wall].Add(el);
-
-            el = new(game.yellow1x1, MazeElement.CallType.Rectangle, new Rectangle(0, 480-2, 800, 2), Color.White);
-            maze[MazeElement.ElementType.Wall].Add(el);
-            el = new(game.yellow1x1, MazeElement.CallType.Rectangle, new Rectangle(800-2, 0, 2, 480), Color.White);
-            maze[MazeElement.ElementType.Wall].Add(el);*/
-
             int cellHeight;
             int cellWidth;
-            switch (size)   //soo...this could be shortened to "cellHeight = cellWidth = (game.windowSize.X / size);," right?
+
+            MazeElement el;
+            MazeTextElement elTxt;
+
+            switch (size)   //soo...this could be shortened to "cellHeight = cellWidth = (game.windowSize.X / size);," right?  and an (if size = 5 || etc.) then throw?
             {
                 case 5:
                     cellHeight = cellWidth = (game.windowSize.X / 5);
@@ -108,7 +100,18 @@ namespace mazeGame.Setup.Maze
                 default:
                     throw new Exception("Unrecognized maze size; size must be 5, 10, 15 or 20");
             }
-            int wallThickness = 4;
+            
+            int wallThickness = 4;  //needs to be divisble by 2
+
+            //First, we'll add the outer walls
+            el = new(game.yellow1x1, CallType.Rectangle, new Rectangle(0, 0, game.windowSize.X, wallThickness / 2), Color.White);
+            maze[MazeElement.ElementType.Wall].Add(el);
+            el = new(game.yellow1x1, CallType.Rectangle, new Rectangle(0, 0, wallThickness / 2, game.windowSize.Y - 100), Color.White);
+            maze[MazeElement.ElementType.Wall].Add(el);
+            el = new(game.yellow1x1, CallType.Rectangle, new Rectangle(0, game.windowSize.Y - 100 - (wallThickness / 2), game.windowSize.X, wallThickness / 2), Color.White);
+            maze[MazeElement.ElementType.Wall].Add(el);
+            el = new(game.yellow1x1, CallType.Rectangle, new Rectangle(game.windowSize.X - (wallThickness / 2), 0, wallThickness / 2, game.windowSize.Y - 100), Color.White);
+            maze[MazeElement.ElementType.Wall].Add(el);
 
             //Then, for each cell, we'll evaluate whether there should be walls drawn
             for (int row = 1; row <= size; row++)
@@ -204,6 +207,11 @@ namespace mazeGame.Setup.Maze
                         new Vector2((player_col - 1) * cellWidth, (player_row - 1) * cellHeight), 
                         Color.White);
             maze[MazeElement.ElementType.Player].Add(el);
+
+            //TODO: Draw the score and the timer (at 0, 1200 through 0, 1300)                                                       //IN PROGRESS
+            //elTxt = new(
+
+
 
             //Then we're done!
 

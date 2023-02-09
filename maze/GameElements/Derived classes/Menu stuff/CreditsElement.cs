@@ -10,7 +10,7 @@ using Microsoft.Xna.Framework.Input;
 
 namespace mazeGame.GameElements
 {
-    internal class CreditsElement : TextElement //GameElement
+    internal class CreditsElement : TextElement
     {
         //internal string text = "";
 

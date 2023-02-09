@@ -1,9 +1,9 @@
 ﻿using mazeGame.GameElements.Base_classes;
 using System;
-using System.Collections.Generic;
+/*using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using System.Threading.Tasks;*/
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -11,9 +11,9 @@ using maze;
 
 namespace mazeGame.GameElements.Derived_classes.Maze_stuff
 {
-    internal class PostGameElement : TextElement
+    internal class MazeTextElement : TextElement
     {
-        internal PostGameElement(RenderType renderType, string text, Vector2 vec, Color color)
+        internal MazeTextElement(RenderType renderType, string text, Vector2 vec, Color color)
         {
             if (renderType == RenderType.UI)
                 throw new Exception("RenderType.UI needs to be accompanied ty a CallType, [Vector2/Rectangle] and a Color");
@@ -25,7 +25,7 @@ namespace mazeGame.GameElements.Derived_classes.Maze_stuff
             //this.callType = callType;
         }
 
-        internal PostGameElement(RenderType renderType, CallType callType, Texture2D texture, Vector2 vec, Color color)
+        internal MazeTextElement(RenderType renderType, CallType callType, Texture2D texture, Vector2 vec, Color color)
         {
             if (renderType == RenderType.Text)
                 throw new Exception("RenderType.Text needs to be accompanied by a string, Vector2 and color");
@@ -40,7 +40,7 @@ namespace mazeGame.GameElements.Derived_classes.Maze_stuff
             this.callType = callType;
         }
 
-        internal PostGameElement(RenderType renderType, CallType callType, Texture2D texture, Rectangle rect, Color color)
+        internal MazeTextElement(RenderType renderType, CallType callType, Texture2D texture, Rectangle rect, Color color)
         {
             if (renderType == RenderType.Text)
                 throw new Exception("RenderType.Text needs to be accompanied by a string, Vector2 and color");

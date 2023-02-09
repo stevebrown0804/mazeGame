@@ -2,15 +2,15 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using System;
+/*using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using System.Threading.Tasks;*/
 
 namespace mazeGame.GameElements
 {
-    internal class MenuElement : TextElement //GameElement
+    internal class MenuElement : TextElement
     {
         //per-element stuff
         //internal string text = "";

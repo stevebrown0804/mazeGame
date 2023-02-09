@@ -27,7 +27,15 @@ namespace mazeGame.Menu
             el = new("Escape (or Alt-F4): Quit", new Vector2(100, 400), Color.Black);
             menuElements.Add(el);
 
-            //TODO: Add lines for the in-game keys: ((b)readcrumb trail, (p)ath and (h)int)
+            //Lines for the in-game keys: ((b)readcrumb trail, (p)ath and (h)int)
+            el = new("In-game toggles:", new Vector2(100, 500), Color.Black);
+            menuElements.Add(el);
+            el = new("b - Breadcrumb trail", new Vector2(100, 550), Color.Black);
+            menuElements.Add(el);
+            el = new("h - Hint", new Vector2(100, 600), Color.Black);
+            menuElements.Add(el);
+            el = new("p - Shortest path", new Vector2(100, 650), Color.Black);
+            menuElements.Add(el);
         }
     }
 }
