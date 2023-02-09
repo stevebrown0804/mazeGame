@@ -30,15 +30,7 @@ namespace mazeGame.GameElements.Derived_classes
             Goal
         }
 
-        internal enum CallType
-        {
-            //unset = 0,
-            Vector2,
-            Rectangle
-        }
-        internal CallType callType;
-
-        //Cornstructors
+         //Cornstructors
         internal MazeElement(Texture2D t, CallType callType, Rectangle r, Color c)
         {
             texture = t;

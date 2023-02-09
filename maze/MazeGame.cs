@@ -8,6 +8,8 @@ using mazeGame.Menu;
 using mazeGame.GameElements;
 using mazeGame.Setup.Maze;
 using mazeGame.GameElements.Derived_classes;
+using mazeGame.GameElements.Base_classes;
+using mazeGame.GameElements.Derived_classes.Maze_stuff;
 
 namespace maze
 {
@@ -22,6 +24,8 @@ namespace maze
         public Texture2D background;
         public Texture2D player_sprite;
         public Texture2D yellow1x1;
+        public Texture2D black1x1;
+        public Texture2D goal_marker;
         //Texture2D cell_sprite;
         public Point windowSize = new(1200, 1200);     //NOTE: Setting the window size to 1200x1200
         private KeyboardState prevState;
@@ -42,6 +46,10 @@ namespace maze
         Dictionary<MazeElement.ElementType, List<MazeElement>> mazeElements;
         bool isMazeSetUp = false;
         Maze maze;
+        //...post-game...
+        List<PostGameElement> postGameElements;
+        bool isPostGameSetUp = false;
+        PostGame postGame;
 
         enum GameStates
         {
@@ -67,7 +75,7 @@ namespace maze
             _graphics.ApplyChanges();
 
             //Initialize stuff I declared
-            gameState = GameStates.Menu;    //Let's start here!
+            gameState = GameStates.Menu;    //Menu is the initial state, apparently
 
             menuElements = new();           //menu
             menu = new();
@@ -76,7 +84,9 @@ namespace maze
             creditsElements = new();        //credits
             credits = new();
             mazeElements = new();           //maze
-            maze = null; 
+            maze = null;    //<---NOTE: different
+            postGameElements = new();       //post-game
+            postGame = new();
         }
 
         //Monogame: Initialize
@@ -97,9 +107,11 @@ namespace maze
             background = Content.Load<Texture2D>("galaxy-background");
             player_sprite = Content.Load<Texture2D>("player");
             yellow1x1 = Content.Load<Texture2D>("yellow1x1");
+            black1x1 = Content.Load<Texture2D>("black1x1");
+            goal_marker = Content.Load<Texture2D>("goal-marker");
             //cell_sprite = Content.Load<Texture2D>("cell-placeholder"); ;
 
-            // TODO: use this.Content to load your game content here
+            // ORIGINAL MESSAGE: use this.Content to load your game content here
         }
 
         //Monogame: Update
@@ -127,6 +139,7 @@ namespace maze
                     }
                     break;
                 case (GameStates.HighScores):
+                    //render the high scores screen
                     for (int i = 0; i < highScoresElements.Count; i++)
                     {
                         HighScoresElement el = highScoresElements[i];
@@ -134,6 +147,7 @@ namespace maze
                     }
                     break;
                 case (GameStates.Credits):
+                    //render the credits
                     for (int i = 0; i < creditsElements.Count; i++)
                     {
                         CreditsElement el = creditsElements[i];
@@ -146,18 +160,14 @@ namespace maze
                 case GameStates.PlayingGame:
                     //Render the maze                    
                     //..starting with the background:
-                    //  TODO, MAYBE: have multiple background sprites and randomly choose one
+                    // MAYBE: have multiple background sprites and randomly choose one
                     spriteBatch.Draw(background, new Rectangle(0, 0, windowSize.X, windowSize.Y), Color.White);
 
                     //...then on to the lists
-                    for (int i = 0; i < mazeElements[MazeElement.ElementType.Cell].Count; i++)
-                    {
-                        //skipping this; cells will simply be transparent
-                    }
-                    for (int i = 0; i < mazeElements[MazeElement.ElementType.Wall].Count; i++)
+                     for (int i = 0; i < mazeElements[MazeElement.ElementType.Wall].Count; i++)
                     {
                         MazeElement el = mazeElements[MazeElement.ElementType.Wall][i];
-                        if(el.callType == MazeElement.CallType.Vector2)
+                        if(el.callType == CallType.Vector2)
                             spriteBatch.Draw(el.texture, el.coords, el.color);
                         else //el.callType == Rectangle
                             spriteBatch.Draw(el.texture, el.rect, el.color);
@@ -165,7 +175,7 @@ namespace maze
                     for (int i = 0; i < mazeElements[MazeElement.ElementType.BreadcrumbTrail].Count; i++)
                     {
                         MazeElement el = mazeElements[MazeElement.ElementType.BreadcrumbTrail][i];
-                        if (el.callType == MazeElement.CallType.Vector2)
+                        if (el.callType == CallType.Vector2)
                             spriteBatch.Draw(el.texture, el.coords, el.color);
                         else //el.callType == Rectangle
                             spriteBatch.Draw(el.texture, el.rect, el.color);
@@ -173,7 +183,7 @@ namespace maze
                     for (int i = 0; i < mazeElements[MazeElement.ElementType.ShortestPath].Count; i++)
                     {
                         MazeElement el = mazeElements[MazeElement.ElementType.ShortestPath][i];
-                        if (el.callType == MazeElement.CallType.Vector2)
+                        if (el.callType == CallType.Vector2)
                             spriteBatch.Draw(el.texture, el.coords, el.color);
                         else //el.callType == Rectangle
                             spriteBatch.Draw(el.texture, el.rect, el.color);
@@ -181,7 +191,7 @@ namespace maze
                     for (int i = 0; i < mazeElements[MazeElement.ElementType.Hint].Count; i++)
                     {
                         MazeElement el = mazeElements[MazeElement.ElementType.Hint][i];
-                        if (el.callType == MazeElement.CallType.Vector2)
+                        if (el.callType == CallType.Vector2)
                             spriteBatch.Draw(el.texture, el.coords, el.color);
                         else //el.callType == Rectangle
                             spriteBatch.Draw(el.texture, el.rect, el.color);
@@ -189,7 +199,7 @@ namespace maze
                     for (int i = 0; i < mazeElements[MazeElement.ElementType.Goal].Count; i++)
                     {
                         MazeElement el = mazeElements[MazeElement.ElementType.Goal][i];
-                        if (el.callType == MazeElement.CallType.Vector2)
+                        if (el.callType == CallType.Vector2)
                             spriteBatch.Draw(el.texture, el.coords, el.color);
                         else //el.callType == Rectangle
                             spriteBatch.Draw(el.texture, el.rect, el.color);
@@ -197,21 +207,86 @@ namespace maze
                     for (int i = 0; i < mazeElements[MazeElement.ElementType.Player].Count; i++)
                     {
                         MazeElement el = mazeElements[MazeElement.ElementType.Player][i];
-                        if (el.callType == MazeElement.CallType.Vector2)
+                        if (el.callType == CallType.Vector2)
                             spriteBatch.Draw(el.texture, el.coords, el.color);
                         else //el.callType == Rectangle
                             spriteBatch.Draw(el.texture, el.rect, el.color);
                     }
 
-                    //Also, render the score, the timer, the keypresses...and w/e else
-                    // TODO
+                    //TODO Also, render the score, the timer, the keypres legend...and w/e else
+
 
                     break;
                 case GameStates.PostGame:
-                    // ummmm...TBD
-                    //TODO
+                    //First, render the maze
+                    spriteBatch.Draw(background, new Rectangle(0, 0, windowSize.X, windowSize.Y), Color.White);
+                    for (int i = 0; i < mazeElements[MazeElement.ElementType.Wall].Count; i++)
+                    {
+                        MazeElement el = mazeElements[MazeElement.ElementType.Wall][i];
+                        if (el.callType == CallType.Vector2)
+                            spriteBatch.Draw(el.texture, el.coords, el.color);
+                        else //el.callType == Rectangle
+                            spriteBatch.Draw(el.texture, el.rect, el.color);
+                    }
+                    for (int i = 0; i < mazeElements[MazeElement.ElementType.BreadcrumbTrail].Count; i++)
+                    {
+                        MazeElement el = mazeElements[MazeElement.ElementType.BreadcrumbTrail][i];
+                        if (el.callType == CallType.Vector2)
+                            spriteBatch.Draw(el.texture, el.coords, el.color);
+                        else //el.callType == Rectangle
+                            spriteBatch.Draw(el.texture, el.rect, el.color);
+                    }
+                    for (int i = 0; i < mazeElements[MazeElement.ElementType.ShortestPath].Count; i++)
+                    {
+                        MazeElement el = mazeElements[MazeElement.ElementType.ShortestPath][i];
+                        if (el.callType == CallType.Vector2)
+                            spriteBatch.Draw(el.texture, el.coords, el.color);
+                        else //el.callType == Rectangle
+                            spriteBatch.Draw(el.texture, el.rect, el.color);
+                    }
+                    for (int i = 0; i < mazeElements[MazeElement.ElementType.Hint].Count; i++)
+                    {
+                        MazeElement el = mazeElements[MazeElement.ElementType.Hint][i];
+                        if (el.callType == CallType.Vector2)
+                            spriteBatch.Draw(el.texture, el.coords, el.color);
+                        else //el.callType == Rectangle
+                            spriteBatch.Draw(el.texture, el.rect, el.color);
+                    }
+                    for (int i = 0; i < mazeElements[MazeElement.ElementType.Goal].Count; i++)
+                    {
+                        MazeElement el = mazeElements[MazeElement.ElementType.Goal][i];
+                        if (el.callType == CallType.Vector2)
+                            spriteBatch.Draw(el.texture, el.coords, el.color);
+                        else //el.callType == Rectangle
+                            spriteBatch.Draw(el.texture, el.rect, el.color);
+                    }
+                    for (int i = 0; i < mazeElements[MazeElement.ElementType.Player].Count; i++)
+                    {
+                        MazeElement el = mazeElements[MazeElement.ElementType.Player][i];
+                        if (el.callType == CallType.Vector2)
+                            spriteBatch.Draw(el.texture, el.coords, el.color);
+                        else //el.callType == Rectangle
+                            spriteBatch.Draw(el.texture, el.rect, el.color);
+                    }
+
+                    //...then render the post-game stuff over it
+                    for (int i = 0; i < postGameElements.Count; i++)
+                    {
+                        PostGameElement el = postGameElements[i];
+                        if(el.renderType == RenderType.Text)
+                            spriteBatch.DrawString(font, el.text, el.coords, el.color);
+                        else //el.renderType == UI
+                        {
+                            if (el.callType == CallType.Vector2)
+                                spriteBatch.Draw(el.texture, el.coords, el.color);
+                            else //el.callType == Rectangle
+                                spriteBatch.Draw(el.texture, el.rect, el.color);
+                        }
+                    }
                     break;
-            }
+
+            }//END switch(gameState)
+
             spriteBatch.End();
             
             base.Draw(gameTime);
@@ -229,8 +304,8 @@ namespace maze
                     {
                         menu.SetupMenu(menuElements);
                         isMenuSetUp = true;
-                    }   //A thought: Could do this with another state (eg. MenuSetup)
-                    if (Keyboard.GetState().IsKeyDown(Keys.F1))                     //TODO: Update all KeyDowns to the (prev==down, cur==up) type
+                    }
+                    if (Keyboard.GetState().IsKeyDown(Keys.F1))             //TODO: Update all(/most) KeyDowns to the (prev==down, cur==up) type
                     {
                         gameState = GameStates.InitializingGame;
                         mazeSize = 5;
@@ -277,7 +352,7 @@ namespace maze
                         highScores.SetupHighScores(highScoresElements);
                         isHighScoresSetUp = true;
                     }
-                    if (Keyboard.GetState().IsKeyDown(Keys.Escape))
+                    if (prevState.IsKeyUp(Keys.Escape) && currentState.IsKeyDown(Keys.Escape))
                     {
                         gameState = GameStates.Menu;
                         isMenuSetUp = false;
@@ -310,42 +385,37 @@ namespace maze
                     EmptyMazeElementsLists();
                     maze.MakeMaze(mazeSize, mazeElements, this);
 
-                    if (maze.player.IsAtGoal())     //check to see if we're done
+                    if (maze.player.IsAtGoal())  //check to see if we're done
                         gameState = GameStates.PostGame;
 
                     //...then handle keypresses
-                    if (prevState.IsKeyUp(Keys.Up) && currentState.IsKeyDown(Keys.Up))              //TODO: wasd, ijkl
+                    if (prevState.IsKeyUp(Keys.Up) && currentState.IsKeyDown(Keys.Up))                          //TODO: wasd, ijkl
                     {
                         //up!
-                        //TODO in a little bit: check for walls & out-of-bound conditions
-                        //...but for the moment:
                         (int row, int col) = maze.player.GetPosition();
-                        maze.player.SetPosition(row - 1, col);
-
-                    }
+                        if (Player.IsMoveAllowed(maze.mazeStorage, maze.player, row - 1, col))                     
+                            maze.player.SetPosition(row - 1, col);
+                     }
                     else if (prevState.IsKeyUp(Keys.Down) && currentState.IsKeyDown(Keys.Down))
                     {
                         //down!
-                        //TODO in a little bit: (see above)
- 
                         (int row, int col) = maze.player.GetPosition();
-                        maze.player.SetPosition(row + 1, col);
+                        if (Player.IsMoveAllowed(maze.mazeStorage, maze.player, row + 1, col))
+                            maze.player.SetPosition(row + 1, col);
                     }
                     else if (prevState.IsKeyUp(Keys.Left) && currentState.IsKeyDown(Keys.Left))
                     {
                         //left!
-                        //TODO in a little bit: (see above)
-
-                        (int row, int col) = maze.player.GetPosition();
-                        maze.player.SetPosition(row, col - 1);
+                         (int row, int col) = maze.player.GetPosition();
+                        if (Player.IsMoveAllowed(maze.mazeStorage, maze.player, row, col - 1))
+                            maze.player.SetPosition(row, col - 1);
                     }
                     else if (prevState.IsKeyUp(Keys.Right) && currentState.IsKeyDown(Keys.Right))
                     {
                         //right!
-                        //TODO in a little bit: (see above)
-
                         (int row, int col) = maze.player.GetPosition();
-                        maze.player.SetPosition(row, col + 1);
+                        if (Player.IsMoveAllowed(maze.mazeStorage, maze.player, row, col + 1))
+                            maze.player.SetPosition(row, col + 1);
                     }
                     else if (prevState.IsKeyUp(Keys.Escape) && currentState.IsKeyDown(Keys.Escape))
                     {
@@ -357,24 +427,28 @@ namespace maze
                     }
                     break;
                 case GameStates.PostGame:
-                    //TODO: Figure out what we're going to do here
-                    // eg. Write some 'congrats' text, wait for ESC to be pressed, return to menu
+                    // Write some 'congrats' text, wait for ESC to be pressed, return to menu
+                    EmptyMazeElementsLists();
+                    maze.MakeMaze(mazeSize, mazeElements, this);
+                    if (!isPostGameSetUp)
+                    {
+                        postGame.SetUpPostGame(postGameElements, this);
+                        isPostGameSetUp = true;
+                    }
 
-                     //TMP-to-perm
-                    //if (Keyboard.GetState().IsKeyDown(Keys.Escape))
-                    if(prevState.IsKeyUp(Keys.Escape) && currentState.IsKeyDown(Keys.Escape))
+                    if (prevState.IsKeyUp(Keys.Escape) && currentState.IsKeyDown(Keys.Escape))
                     {
                         gameState = GameStates.Menu;
                         isMenuSetUp = false;
                         mazeElements.Clear();
                         isMazeSetUp = false;
                     }
-                    //END TMP
+
                     break;
 
             }//END switch (gameState)
 
-            prevState = currentState;   //set prevState to the current keyboard state
+            prevState = currentState;   //keyboard state, btw
 
         }//END ProcessInput()
 

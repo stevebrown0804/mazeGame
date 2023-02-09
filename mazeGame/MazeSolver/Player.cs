@@ -21,27 +21,72 @@
 
             internal Position(IMazeStorage maze)
             {
-                (this.row, this.col) = maze.GetRowsAndColumns();                
+                (row, col) = maze.GetRowsAndColumns();                
             }
         }
 
-        IMazeStorage maze;
+        //IMazeStorage maze;
         internal Position goal;
         internal Position startingPoint;
         internal Position position;
 
         public Player(IMazeStorage maze) 
         {
-            this.maze = maze;
+            //this.maze = maze;
             goal = new Position(maze);
             startingPoint = new Position(); //(1,1)
             position = new Position(startingPoint.row, startingPoint.col);
         }
 
+        public static bool IsMoveAllowed(IMazeStorage mazeStorage, Player player, int targetRow, int targetCol)
+        {
+            int row = player.position.row;
+            int col = player.position.col;
+            (int maze_rows, int maze_cols) = mazeStorage.GetRowsAndColumns();
+
+            //first we'll check for out-of-bounds conditions
+            if (targetRow == 0 || targetRow == maze_rows + 1 || targetCol == 0 || targetCol == maze_cols + 1)
+                return false;
+
+            //Then we'll check for walls
+            var dict = mazeStorage.GetDict();
+            string str_position = $"r{row}c{col}";
+            string str_target = $"r{targetRow}c{targetCol}";
+            if (targetRow - row == 1) //targetRow = row + 1, ie 'down'
+            {
+                if (dict[str_position].wallBelow != null)
+                    return false;
+            }                
+            else if (targetRow - row == -1) //targetRow = row - 1, ie 'up'
+            {
+                if (dict[str_target].wallBelow != null)
+                    return false;
+            }
+            else if (targetCol - col == 1) //targetCol = col + 1, ie 'right'
+            {
+                if (dict[str_position].wallToTheRight != null)
+                    return false;
+            }   
+            else if (targetCol - col == -1) //targetCol = col - 1, ie 'left'
+            {
+                if (dict[str_target].wallToTheRight != null)
+                    return false;
+            }
+            
+            //Otherwise...
+            return true;
+        }//END IsMoveAllowed()
+
         public bool IsAtGoal()
         {
             return goal.row == position.row && goal.col == position.col;
         }
+
+        public (int, int) GetGoalPosition()
+        {
+            return (goal.row, goal.col);
+        }
+
 
         public (int, int) GetPosition()
         {

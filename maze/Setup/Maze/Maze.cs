@@ -37,8 +37,8 @@ namespace mazeGame.Setup.Maze
             mazeStorage = new MazeStorage_Dictionary(size, size);
 
             //Next up, we'll create a maze using a specific routine            
-            /*IMazeCreation*/ mazeCreator = new DepthFirst_Iterative();
-            // /*IMazeCreation*/ mazeCreator = new Prims();
+            ///*IMazeCreation*/ mazeCreator = new DepthFirst_Iterative();
+            /*IMazeCreation*/ mazeCreator = new Prims();
             mazeStorage = mazeStorage.CreateMaze(mazeCreator);
 
             //We'll create a player object
@@ -46,7 +46,8 @@ namespace mazeGame.Setup.Maze
 
             //And a maze-solver object
             /*IMazeSolver*/ solver = new MazeSolver();
-            solver = solver.Solve(mazeStorage, player);
+            //solver = solver.Solve(mazeStorage, player);     
+                //TODO: Defer this until we've confirmed that the player wants to see the shortest path (or a hint)
 
             //..and then render it
             //IMazeRenderer renderTarget = new RenderDictionaryToConsole();
@@ -61,7 +62,6 @@ namespace mazeGame.Setup.Maze
         internal void SetupMaze(int size, Dictionary<MazeElement.ElementType, List<MazeElement>> maze, MazeGame game)
         {
             //One-time stuff:
-
             player.ResetPosition();
 
         }//END SetupMaze()
@@ -85,7 +85,7 @@ namespace mazeGame.Setup.Maze
 
             int cellHeight;
             int cellWidth;
-            switch (size)
+            switch (size)   //soo...this could be shortened to "cellHeight = cellWidth = (game.windowSize.X / size);," right?
             {
                 case 5:
                     cellHeight = cellWidth = (game.windowSize.X / 5);
@@ -118,14 +118,14 @@ namespace mazeGame.Setup.Maze
                     if (dict[cell_str].wallBelow != null)
                     {
                         //add the wall below the current cell
-                        el = new(game.yellow1x1, MazeElement.CallType.Rectangle,
+                        el = new(game.yellow1x1, CallType.Rectangle,
                                  new Rectangle(cell_x_left, cell_y_bottom - wallThickness / 2, cellWidth, wallThickness), Color.White);
                         maze[MazeElement.ElementType.Wall].Add(el);
                     }
                     if (dict[cell_str].wallToTheRight != null)
                     {
                         // add the wall to the right of the current cell
-                        el = new(game.yellow1x1, MazeElement.CallType.Rectangle,
+                        el = new(game.yellow1x1, CallType.Rectangle,
                                  new Rectangle(cell_x_right - wallThickness / 2, cell_y_top, wallThickness, cellHeight), Color.White);
                         maze[MazeElement.ElementType.Wall].Add(el);
 
@@ -142,14 +142,18 @@ namespace mazeGame.Setup.Maze
             //TODO
 
             //Then we'll draw the goal...
-            //TODO
+            (int goalRow, int goalCol) = player.GetGoalPosition();
+            el = new(game.goal_marker, CallType.Vector2, new Vector2(cellWidth * (goalRow-1), cellHeight * (goalCol-1)), Color.White);
+            maze[MazeElement.ElementType.Goal].Add(el);
 
             //Then, we'll draw the player
             (int player_row, int player_col) = player.GetPosition();
-            el = new(game.player_sprite, MazeElement.CallType.Vector2,
+            el = new(game.player_sprite, CallType.Vector2,
                         new Vector2((player_col - 1) * cellWidth, (player_row - 1) * cellHeight), 
                         Color.White);
             maze[MazeElement.ElementType.Player].Add(el);
+
+            //Then we're done!
 
         }//END MakeMaze()
 

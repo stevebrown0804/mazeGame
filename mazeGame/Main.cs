@@ -30,7 +30,7 @@ namespace mazeGenerator
             maze.Render(renderTarget, solver);
             //maze.Render(renderTarget);
 
-            //TODO: Have RenderDictionaryToConsole (and to file, eventually) incorporate the shortest path
+            //MAYBE: Have RenderDictionaryToConsole (and to file, eventually) incorporate the shortest path
 
             //TMP
             /*List<CellsAndWalls> shortestPath = solver.GetShortestPath();
