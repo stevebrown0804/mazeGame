@@ -20,6 +20,10 @@ namespace mazeGame.Setup.Maze
         internal Player player;
         internal IMazeSolver solver;
 
+        internal Dictionary<string, bool> visitedCells;
+
+        internal int breadCrumbSize = 25;
+
         internal Maze(int size, Dictionary<MazeElement.ElementType, List<MazeElement>> mazeElements)
         {
             //This seems like as good a place as any to create these lists
@@ -63,6 +67,11 @@ namespace mazeGame.Setup.Maze
         {
             //One-time stuff:
             player.ResetPosition();
+            player.ResetVisitedCellsDictionary();
+            visitedCells = player.GetVisitedCellsDict();
+            //Set (1,1) (or w/e the starting point is) to 'true' in the 'visitedCells' dictionary
+            (int row, int col) = player.GetPosition();
+            visitedCells[$"r{row}c{col}"] = true;
 
         }//END SetupMaze()
 
@@ -133,7 +142,24 @@ namespace mazeGame.Setup.Maze
                 }// inner for
 
             //Then, if we should draw BreadcrumbTrail, do so...
-            //TODO
+            if (game.showBreadcrumbTrail)                                                                            //IN PROGRESS
+            {
+                (int rows, int cols) = mazeStorage.GetRowsAndColumns();
+                Dictionary<string, bool> hasCellBeenVisited = player.GetVisitedCellsDict();
+
+                for(int row = 1; row <= rows; row++)
+                    for(int col = 1; col <= cols; col++)
+                    {
+                        string str = $"r{row}c{col}";
+                        if (hasCellBeenVisited[str])
+                        {
+                            el = new(game.purple1x1, CallType.Rectangle,
+                                     new Rectangle(cellWidth * (col - 1), cellHeight * (row - 1), breadCrumbSize, breadCrumbSize),
+                                     Color.White);
+                            maze[MazeElement.ElementType.BreadcrumbTrail].Add(el);
+                        }
+                    }
+            }
 
             //Then, if we should draw ShortestPath, do so...
             //TODO

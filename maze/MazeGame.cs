@@ -25,6 +25,7 @@ namespace maze
         public Texture2D player_sprite;
         public Texture2D yellow1x1;
         public Texture2D black1x1;
+        public Texture2D purple1x1;
         public Texture2D goal_marker;
         //Texture2D cell_sprite;
         public Point windowSize = new(1200, 1200);     //NOTE: Setting the window size to 1200x1200
@@ -50,6 +51,11 @@ namespace maze
         List<PostGameElement> postGameElements;
         bool isPostGameSetUp = false;
         PostGame postGame;
+
+        //more bools!
+        internal bool showBreadcrumbTrail = false; //TODO: implement!
+        internal bool showShortestPath = false; //TODO: implement!
+        internal bool showHint = false; //TODO: implement!
 
         enum GameStates
         {
@@ -108,6 +114,7 @@ namespace maze
             player_sprite = Content.Load<Texture2D>("player");
             yellow1x1 = Content.Load<Texture2D>("yellow1x1");
             black1x1 = Content.Load<Texture2D>("black1x1");
+            purple1x1 = Content.Load<Texture2D>("purple1x1");
             goal_marker = Content.Load<Texture2D>("goal-marker");
             //cell_sprite = Content.Load<Texture2D>("cell-placeholder"); ;
 
@@ -393,29 +400,49 @@ namespace maze
                     {
                         //up!
                         (int row, int col) = maze.player.GetPosition();
-                        if (Player.IsMoveAllowed(maze.mazeStorage, maze.player, row - 1, col))                     
+                        if (Player.IsMoveAllowed(maze.mazeStorage, maze.player, row - 1, col))
+                        {
                             maze.player.SetPosition(row - 1, col);
+                            maze.player.SetCellAsVisited(row - 1, col);
+                        }                 
+                            
                      }
                     else if (prevState.IsKeyUp(Keys.Down) && currentState.IsKeyDown(Keys.Down))
                     {
                         //down!
                         (int row, int col) = maze.player.GetPosition();
                         if (Player.IsMoveAllowed(maze.mazeStorage, maze.player, row + 1, col))
+                        {
                             maze.player.SetPosition(row + 1, col);
+                            maze.player.SetCellAsVisited(row + 1, col);
+                        }
                     }
                     else if (prevState.IsKeyUp(Keys.Left) && currentState.IsKeyDown(Keys.Left))
                     {
                         //left!
                          (int row, int col) = maze.player.GetPosition();
                         if (Player.IsMoveAllowed(maze.mazeStorage, maze.player, row, col - 1))
+                        {
                             maze.player.SetPosition(row, col - 1);
+                            maze.player.SetCellAsVisited(row, col - 1);
+                        }                            
                     }
                     else if (prevState.IsKeyUp(Keys.Right) && currentState.IsKeyDown(Keys.Right))
                     {
                         //right!
                         (int row, int col) = maze.player.GetPosition();
                         if (Player.IsMoveAllowed(maze.mazeStorage, maze.player, row, col + 1))
+                        {
                             maze.player.SetPosition(row, col + 1);
+                            maze.player.SetCellAsVisited(row, col + 1);
+                        }
+                    }
+                    else if (prevState.IsKeyUp(Keys.B) && currentState.IsKeyDown(Keys.B))
+                    {
+                        if (!showBreadcrumbTrail)
+                            showBreadcrumbTrail = true;
+                        else
+                            showBreadcrumbTrail = false;
                     }
                     else if (prevState.IsKeyUp(Keys.Escape) && currentState.IsKeyDown(Keys.Escape))
                     {
@@ -424,6 +451,9 @@ namespace maze
                         isMenuSetUp = false;
                         mazeElements.Clear();
                         isMazeSetUp = false;
+                        showBreadcrumbTrail= false;
+                        showHint = false;
+                        showShortestPath = false;
                     }
                     break;
                 case GameStates.PostGame:
@@ -442,6 +472,9 @@ namespace maze
                         isMenuSetUp = false;
                         mazeElements.Clear();
                         isMazeSetUp = false;
+                        showBreadcrumbTrail = false;
+                        showHint = false;
+                        showShortestPath = false;
                     }
 
                     break;
