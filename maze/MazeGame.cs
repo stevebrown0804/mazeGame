@@ -520,7 +520,7 @@ namespace maze
                     if (!isPostGameSetUp)
                     {
                         //Determine if the score belongs in the high scores; if so, add it
-                        highScores.AddIfItBelongs(new HighScore(maze.player.GetScore(), maze.elapsedTime));
+                        highScores.AddIfItBelongs(new HighScore(mazeSize, maze.player.GetScore(), maze.elapsedTime));
                         isHighScoresSetUp = false;
 
                         postGame.SetUpPostGame(postGameElements, this);

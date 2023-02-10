@@ -13,11 +13,13 @@ namespace mazeGame.Menu
 
     internal class HighScore : IComparable<HighScore>
     {
+        internal int mazeSize;
         internal int score;
         internal TimeSpan time;
 
-        internal HighScore(int score, TimeSpan time)
+        internal HighScore(int mazeSize, int score, TimeSpan time)
         {
+            this.mazeSize = mazeSize;
             this.score = score;
             this.time = time;
         }
@@ -50,19 +52,20 @@ namespace mazeGame.Menu
             highScores = new();
             for (int i = 0; i < 5; i++)
             {
-                HighScore aScore = new(0, new TimeSpan(100000000 * (i+1)));
+                HighScore aScore = new(0, 0, new TimeSpan(100000000 * (i+1)));
                 highScores.Add(aScore);
             }
         }
 
         internal void SetupHighScores(List<HighScoresElement> highScoresElements)
         {
+            
             HighScoresElement el = new("High scores:", new Vector2(100, 100), Color.Black);
             highScoresElements.Add(el);
             for(int i = 0; i < 5; i++)
             {
                 TimeSpan time = highScores[i].time;
-                el = new($"{highScores[i].score} -- {time.ToString()}", new Vector2(100, 150 + 50*i), Color.Black);
+                el = new($"{highScores[i].mazeSize}x{highScores[i].mazeSize} -- {highScores[i].score} -- {time.ToString()}", new Vector2(100, 150 + 50*i), Color.Black);
                                                   /*{time.Minutes}:{time.Seconds}:{time.Milliseconds}*/
                 highScoresElements.Add(el);
             }
