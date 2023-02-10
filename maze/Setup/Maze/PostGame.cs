@@ -22,11 +22,10 @@ namespace mazeGame.Setup.Maze
                                      new Vector2(500, 500), Color.White);
             postGameElements.Add(el);
 
-            //TODO: Fill this in
-            el = new(RenderType.Text, $"Your score was ",
+            el = new(RenderType.Text, $"Your score was {mazeGame.maze.player.GetScore()}",
                                      new Vector2(500, 600), Color.White);
             postGameElements.Add(el);
-            el = new(RenderType.Text, $"Your time was ",
+            el = new(RenderType.Text, $"Your time was {mazeGame.maze.elapsedTime.ToString()}",
                                      new Vector2(500, 700), Color.White);
             postGameElements.Add(el);
 

@@ -39,7 +39,7 @@
             goal = new Position(maze);
             startingPoint = new Position(); //(1,1)
             position = new Position(startingPoint.row, startingPoint.col);
-            score = 0;                                                                                      //IN PROGRESS
+            score = 0;
 
             visitedCells = new();
             ResetVisitedCellsDictionary();  //reset(/initialize)

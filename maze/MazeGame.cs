@@ -47,15 +47,13 @@ namespace maze
         //...maze...
         Dictionary<MazeElement.ElementType, List<MazeElement>> mazeElements;
         bool isMazeSetUp = false;
-        Maze maze;
+        internal Maze maze;
         //...post-game...
         List<MazeTextElement> postGameElements;
         bool isPostGameSetUp = false;
         PostGame postGame;
         //...and the text area of the maze
         internal List<MazeTextElement> textAreaElements;
-        //bool isTextAreaSetUp = false; //not using this; we'll do this as part of the maze
-        //TextArea textArea;            //or this
 
         //more bools!
         internal bool showBreadcrumbTrail = false;
@@ -124,8 +122,6 @@ namespace maze
             red1x1 = Content.Load<Texture2D>("red1x1");
             goal_marker = Content.Load<Texture2D>("goal-marker");
             //cell_sprite = Content.Load<Texture2D>("cell-placeholder"); ;
-
-            // ORIGINAL MESSAGE: use this.Content to load your game content here
         }
 
         //Monogame: Update
@@ -431,7 +427,7 @@ namespace maze
                         gameState = GameStates.PostGame;                        
                     }
 
-                    //...then handle keypresses, including arrows, wasd and ijkl                                                                  
+                    //...then handle keypresses, including arrows, wasd and ijkl
                     if (prevState.IsKeyUp(Keys.Up) && currentState.IsKeyDown(Keys.Up)
                         || prevState.IsKeyUp(Keys.W) && currentState.IsKeyDown(Keys.W)
                         || prevState.IsKeyUp(Keys.I) && currentState.IsKeyDown(Keys.I))
@@ -440,24 +436,22 @@ namespace maze
                         (int row, int col) = maze.player.GetPosition();
                         if (Player.IsMoveAllowed(maze.mazeStorage, maze.player, row - 1, col))
                         {
+                            maze.DoScore(row, col, row - 1, col);
                             maze.player.SetPosition(row - 1, col);
                             maze.player.SetCellAsVisited(row - 1, col);
-                            //showHint = false; //I orignallly had the hint turn off after movement...but the assignment says it should "...[stay] persistent and updated until the user toggles it off."  Ok, then!
                         }
-
                     } 
                     else if (prevState.IsKeyUp(Keys.Down) && currentState.IsKeyDown(Keys.Down)
                         || prevState.IsKeyUp(Keys.S) && currentState.IsKeyDown(Keys.S)
                         || prevState.IsKeyUp(Keys.K) && currentState.IsKeyDown(Keys.K))
-
                     {
                         //down!
                         (int row, int col) = maze.player.GetPosition();
                         if (Player.IsMoveAllowed(maze.mazeStorage, maze.player, row + 1, col))
                         {
+                            maze.DoScore(row, col, row + 1, col);
                             maze.player.SetPosition(row + 1, col);
                             maze.player.SetCellAsVisited(row + 1, col);
-                            //showHint = false;
                         }
                     }
                     else if (prevState.IsKeyUp(Keys.Left) && currentState.IsKeyDown(Keys.Left)
@@ -468,9 +462,9 @@ namespace maze
                          (int row, int col) = maze.player.GetPosition();
                         if (Player.IsMoveAllowed(maze.mazeStorage, maze.player, row, col - 1))
                         {
+                            maze.DoScore(row, col, row, col - 1);
                             maze.player.SetPosition(row, col - 1);
                             maze.player.SetCellAsVisited(row, col - 1);
-                            //showHint = false;
                         }
                     }
                     else if (prevState.IsKeyUp(Keys.Right) && currentState.IsKeyDown(Keys.Right)
@@ -481,9 +475,9 @@ namespace maze
                         (int row, int col) = maze.player.GetPosition();
                         if (Player.IsMoveAllowed(maze.mazeStorage, maze.player, row, col + 1))
                         {
+                            maze.DoScore(row, col, row, col + 1);
                             maze.player.SetPosition(row, col + 1);
                             maze.player.SetCellAsVisited(row, col + 1);
-                            //showHint = false;
                         }
                     }
                     else if (prevState.IsKeyUp(Keys.B) && currentState.IsKeyDown(Keys.B))
@@ -542,7 +536,7 @@ namespace maze
                         showBreadcrumbTrail = false;
                         showHint = false;
                         showShortestPath = false;
-                        isPostGameSetUp = false;    //Trying this out, woot                                      //IN PROGRESS
+                        isPostGameSetUp = false;
                     }
 
                     break;

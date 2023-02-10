@@ -5,8 +5,8 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;*/
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
+/*using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;*/
 
 namespace mazeGame.Menu
 {
@@ -24,9 +24,9 @@ namespace mazeGame.Menu
 
         public int CompareTo(HighScore other)
         {
-            if (this.score < other.score)
+            if (this.score > other.score)
                 return -1;
-            else if(this.score > other.score)
+            else if(this.score < other.score)
                 return 1;
             else
             {

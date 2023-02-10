@@ -24,7 +24,7 @@ namespace mazeGame.Setup.Maze
         List<CellsAndWalls> oneTruePath;
 
         internal Dictionary<string, bool> visitedCells;
-        internal int breadCrumbSize = 25;
+        internal int breadCrumbSize = 20;           //<--Feel free to change
         
         GameTime gameTime;
         internal TimeSpan elapsedTime;
@@ -52,7 +52,6 @@ namespace mazeGame.Setup.Maze
             this.gameTime = gameTime;
             //elapsedTime = 0; //?
         }
-
 
         internal void SetupMaze(int size, Dictionary<MazeElement.ElementType, List<MazeElement>> maze, MazeGame game)
         {
@@ -233,6 +232,35 @@ namespace mazeGame.Setup.Maze
             //Then we're done!
 
         }//END MakeMaze()
+
+        public void DoScore(int currentRow, int currentCol, int targetRow, int targetCol)
+        {
+            string strTarget = $"r{targetRow}c{targetCol}";
+            bool cellFoundOnTheOneTruePath = false;
+            if (!visitedCells[strTarget])   //do nothing if the cell has been visited
+            {
+                //If the target row/col is on the shortest path, add five to the score
+                for(int i = 0; i < oneTruePath.Count; i++)
+                {
+                    if (oneTruePath[i].cell.row == targetRow && oneTruePath[i].cell.col == targetCol)
+                    {
+                        player.SetScore(player.GetScore() + 5);
+                        cellFoundOnTheOneTruePath = true;
+                        break;
+                    }
+                }
+
+                //If we didn't find the target cell on the oneTruePath...
+                if (!cellFoundOnTheOneTruePath)
+                {
+                    player.SetScore(player.GetScore() - 2);     //simplified version; doesn't look for "oneTruePatch adjacency"
+                    if (player.GetScore() < 0)
+                        player.SetScore(0);
+                }
+
+            }//END if (!visitedCells[strTarget])
+
+        }//END DoScore()
 
     }//END class maze
 }
