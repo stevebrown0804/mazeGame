@@ -28,6 +28,7 @@ namespace mazeGame.GameElements.Derived_classes
             BreadcrumbTrail,
             Hint,
             Goal
+            //TextPanel
         }
 
          //Cornstructors

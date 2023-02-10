@@ -52,6 +52,10 @@ namespace maze
         List<MazeTextElement> postGameElements;
         bool isPostGameSetUp = false;
         PostGame postGame;
+        //...and the text area of the maze
+        internal List<MazeTextElement> textAreaElements;
+        //bool isTextAreaSetUp = false; //not using this; we'll do this as part of the maze
+        //TextArea textArea;            //or this
 
         //more bools!
         internal bool showBreadcrumbTrail = false;
@@ -94,6 +98,7 @@ namespace maze
             maze = null;    //<---NOTE: different
             postGameElements = new();       //post-game
             postGame = new();
+            textAreaElements = new();       //the maze's text-display area
         }
 
         //Monogame: Initialize
@@ -221,8 +226,20 @@ namespace maze
                         else //el.callType == Rectangle
                             spriteBatch.Draw(el.texture, el.rect, el.color);
                     }
-
-                    //TODO Also, render the score, the timer, the keypress legend...and w/e else
+                    //And then the text area, which has its own list (not part of the dictionary, for data type reasons)
+                    for (int i = 0; i < textAreaElements.Count; i++)
+                    {
+                        MazeTextElement el = textAreaElements[i];
+                        if (el.renderType == RenderType.Text)
+                            spriteBatch.DrawString(font, el.text, el.coords, el.color);
+                        else //el.renderType == UI
+                        {
+                            if (el.callType == CallType.Vector2)
+                                spriteBatch.Draw(el.texture, el.coords, el.color);
+                            else //el.callType == Rectangle
+                                spriteBatch.Draw(el.texture, el.rect, el.color);
+                        }
+                    }
 
                     break;
                 case GameStates.PostGame:
@@ -276,6 +293,20 @@ namespace maze
                         else //el.callType == Rectangle
                             spriteBatch.Draw(el.texture, el.rect, el.color);
                     }
+                    for (int i = 0; i < textAreaElements.Count; i++)
+                    {
+                        MazeTextElement el = textAreaElements[i];
+                        if (el.renderType == RenderType.Text)
+                            spriteBatch.DrawString(font, el.text, el.coords, el.color);
+                        else //el.renderType == UI
+                        {
+                            if (el.callType == CallType.Vector2)
+                                spriteBatch.Draw(el.texture, el.coords, el.color);
+                            else //el.callType == Rectangle
+                                spriteBatch.Draw(el.texture, el.rect, el.color);
+                        }
+                    }
+
 
                     //...then render the post-game stuff over it
                     for (int i = 0; i < postGameElements.Count; i++)
@@ -382,7 +413,7 @@ namespace maze
                 case GameStates.InitializingGame:
                     if (!isMazeSetUp)
                     {
-                        maze = new(mazeSize, mazeElements);
+                        maze = new(mazeSize, mazeElements, gameTime);
                         maze.SetupMaze(mazeSize, mazeElements, this);
                         isMazeSetUp = true;                                       
                         gameState = GameStates.PlayingGame;
@@ -395,12 +426,15 @@ namespace maze
 
                     if (maze.player.IsAtGoal())  //check to see if we're done
                     {
-                        gameState = GameStates.PostGame;
+                        maze.isMazeDoneYet = true;
                         showHint = false;
-                    }  
+                        gameState = GameStates.PostGame;                        
+                    }
 
-                    //...then handle keypresses
-                    if (prevState.IsKeyUp(Keys.Up) && currentState.IsKeyDown(Keys.Up))                          //TODO: wasd, ijkl
+                    //...then handle keypresses, including arrows, wasd and ijkl                                                                  
+                    if (prevState.IsKeyUp(Keys.Up) && currentState.IsKeyDown(Keys.Up)
+                        || prevState.IsKeyUp(Keys.W) && currentState.IsKeyDown(Keys.W)
+                        || prevState.IsKeyUp(Keys.I) && currentState.IsKeyDown(Keys.I))
                     {
                         //up!
                         (int row, int col) = maze.player.GetPosition();
@@ -411,8 +445,11 @@ namespace maze
                             //showHint = false; //I orignallly had the hint turn off after movement...but the assignment says it should "...[stay] persistent and updated until the user toggles it off."  Ok, then!
                         }
 
-                    }
-                    else if (prevState.IsKeyUp(Keys.Down) && currentState.IsKeyDown(Keys.Down))
+                    } 
+                    else if (prevState.IsKeyUp(Keys.Down) && currentState.IsKeyDown(Keys.Down)
+                        || prevState.IsKeyUp(Keys.S) && currentState.IsKeyDown(Keys.S)
+                        || prevState.IsKeyUp(Keys.K) && currentState.IsKeyDown(Keys.K))
+
                     {
                         //down!
                         (int row, int col) = maze.player.GetPosition();
@@ -423,7 +460,9 @@ namespace maze
                             //showHint = false;
                         }
                     }
-                    else if (prevState.IsKeyUp(Keys.Left) && currentState.IsKeyDown(Keys.Left))
+                    else if (prevState.IsKeyUp(Keys.Left) && currentState.IsKeyDown(Keys.Left)
+                        || prevState.IsKeyUp(Keys.A) && currentState.IsKeyDown(Keys.A)
+                        || prevState.IsKeyUp(Keys.J) && currentState.IsKeyDown(Keys.J))
                     {
                         //left!
                          (int row, int col) = maze.player.GetPosition();
@@ -432,9 +471,11 @@ namespace maze
                             maze.player.SetPosition(row, col - 1);
                             maze.player.SetCellAsVisited(row, col - 1);
                             //showHint = false;
-                        }                            
+                        }
                     }
-                    else if (prevState.IsKeyUp(Keys.Right) && currentState.IsKeyDown(Keys.Right))
+                    else if (prevState.IsKeyUp(Keys.Right) && currentState.IsKeyDown(Keys.Right)
+                        || prevState.IsKeyUp(Keys.D) && currentState.IsKeyDown(Keys.D)
+                        || prevState.IsKeyUp(Keys.L) && currentState.IsKeyDown(Keys.L))
                     {
                         //right!
                         (int row, int col) = maze.player.GetPosition();
@@ -484,6 +525,10 @@ namespace maze
                     maze.MakeMaze(mazeSize, mazeElements, this);
                     if (!isPostGameSetUp)
                     {
+                        //Determine if the score belongs in the high scores; if so, add it
+                        highScores.AddIfItBelongs(new HighScore(maze.player.GetScore(), maze.elapsedTime));
+                        isHighScoresSetUp = false;
+
                         postGame.SetUpPostGame(postGameElements, this);
                         isPostGameSetUp = true;
                     }
@@ -497,6 +542,7 @@ namespace maze
                         showBreadcrumbTrail = false;
                         showHint = false;
                         showShortestPath = false;
+                        isPostGameSetUp = false;    //Trying this out, woot                                      //IN PROGRESS
                     }
 
                     break;

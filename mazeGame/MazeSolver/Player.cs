@@ -30,7 +30,7 @@
         internal Position startingPoint;
         internal Position position;
         internal int score;
-
+        
         Dictionary<string, bool> visitedCells;
 
         public Player(IMazeStorage maze) 

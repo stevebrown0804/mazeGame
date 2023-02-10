@@ -16,13 +16,22 @@ namespace mazeGame.Setup.Maze
         internal void SetUpPostGame(List<MazeTextElement> postGameElements, MazeGame mazeGame)
         {
             MazeTextElement el;
-            el = new(RenderType.UI, CallType.Rectangle, mazeGame.black1x1, new Rectangle(400, 400, 700, 400), Color.White);
+            el = new(RenderType.UI, CallType.Rectangle, mazeGame.black1x1, new Rectangle(400, 400, 700, 600), Color.White);
             postGameElements.Add(el);
             el = new(RenderType.Text, "Congratulations", 
                                      new Vector2(500, 500), Color.White);
             postGameElements.Add(el);
+
+            //TODO: Fill this in
+            el = new(RenderType.Text, $"Your score was ",
+                                     new Vector2(500, 600), Color.White);
+            postGameElements.Add(el);
+            el = new(RenderType.Text, $"Your time was ",
+                                     new Vector2(500, 700), Color.White);
+            postGameElements.Add(el);
+
             el = new(RenderType.Text, "Press Escape to return to menu", 
-                     new Vector2(500, 600), Color.White);
+                     new Vector2(500, 900), Color.White);
             postGameElements.Add(el);
         }
     }

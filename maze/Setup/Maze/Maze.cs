@@ -24,10 +24,14 @@ namespace mazeGame.Setup.Maze
         List<CellsAndWalls> oneTruePath;
 
         internal Dictionary<string, bool> visitedCells;
-
         internal int breadCrumbSize = 25;
+        
+        GameTime gameTime;
+        internal TimeSpan elapsedTime;
 
-        internal Maze(int size, Dictionary<MazeElement.ElementType, List<MazeElement>> mazeElements)
+        public bool isMazeDoneYet = false;
+
+        internal Maze(int size, Dictionary<MazeElement.ElementType, List<MazeElement>> mazeElements, GameTime gameTime)
         {
             //This seems like as good a place as any to create these lists
             mazeElements[MazeElement.ElementType.Cell] = new List<MazeElement>();
@@ -44,6 +48,9 @@ namespace mazeGame.Setup.Maze
             mazeStorage = mazeStorage.CreateMaze(mazeCreator);
             player = new(mazeStorage);
             solver = new MazeSolver();
+
+            this.gameTime = gameTime;
+            //elapsedTime = 0; //?
         }
 
 
@@ -82,7 +89,7 @@ namespace mazeGame.Setup.Maze
             MazeElement el;
             MazeTextElement elTxt;
 
-            switch (size)   //soo...this could be shortened to "cellHeight = cellWidth = (game.windowSize.X / size);," right?  and an (if size = 5 || etc.) then throw?
+            switch (size)   //soo...this could be shortened to "cellHeight = cellWidth = (game.windowSize.X / size);," right?  and an (if not size = 5 || etc.) then throw?
             {
                 case 5:
                     cellHeight = cellWidth = (game.windowSize.X / 5);
@@ -95,7 +102,7 @@ namespace mazeGame.Setup.Maze
                     break;
                 case 20:
                     cellHeight = cellWidth = (game.windowSize.X / 20);  //Note: all these numbers need to divide game.windowSize.X (and .Y).
-                                                                        //  (1200 seems like a good choice; (20*15) * 4, I think)
+                                                                        //  (1200 seems like a good choice; (20*15) * 4 = 1200)
                     break;
                 default:
                     throw new Exception("Unrecognized maze size; size must be 5, 10, 15 or 20");
@@ -195,7 +202,6 @@ namespace mazeGame.Setup.Maze
                 player.SetPosition(player_row, player_col); //and restore the player's position
             }
 
-
             //Then we'll draw the goal...
             (int goalRow, int goalCol) = player.GetGoalPosition();
             el = new(game.goal_marker, CallType.Vector2, new Vector2(cellWidth * (goalRow-1), cellHeight * (goalCol-1)), Color.White);
@@ -208,10 +214,21 @@ namespace mazeGame.Setup.Maze
                         Color.White);
             maze[MazeElement.ElementType.Player].Add(el);
 
-            //TODO: Draw the score and the timer (at 0, 1200 through 0, 1300)                                                       //IN PROGRESS
-            //elTxt = new(
+            //Draw the score and the timer (at 0, 1200 through 0, 1300)
+            int verticalTextAreaOffset = 30;
+            elTxt = new(RenderType.UI, CallType.Rectangle, game.black1x1, new Rectangle(0, 1200, 1200, 100), Color.White);
+            game.textAreaElements.Add(elTxt);
+            elTxt = new(RenderType.Text, "Score: ", new Vector2(200, 1200 + verticalTextAreaOffset), Color.White);
+            game.textAreaElements.Add(elTxt);
+            elTxt = new(RenderType.Text, $"{player.GetScore()}", new Vector2(300, 1200 + verticalTextAreaOffset), Color.White);
+            game.textAreaElements.Add(elTxt);
 
-
+            if (!isMazeDoneYet)
+            {
+                elapsedTime += gameTime.ElapsedGameTime;
+            }            
+            elTxt = new(RenderType.Text, $"{elapsedTime.Minutes}:{elapsedTime.Seconds}:{elapsedTime.Milliseconds}", new Vector2(800, 1200 + verticalTextAreaOffset), Color.White);
+            game.textAreaElements.Add(elTxt);
 
             //Then we're done!
 
