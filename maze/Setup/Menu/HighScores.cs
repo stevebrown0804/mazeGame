@@ -66,6 +66,8 @@ namespace mazeGame.Menu
                                                   /*{time.Minutes}:{time.Seconds}:{time.Milliseconds}*/
                 highScoresElements.Add(el);
             }
+            el = new("Press Escape to return to menu", new Vector2(100, 500), Color.Black);
+            highScoresElements.Add(el);
         }
 
         internal void AddIfItBelongs(HighScore score)

@@ -121,7 +121,7 @@ namespace maze
             purple1x1 = Content.Load<Texture2D>("purple1x1");
             red1x1 = Content.Load<Texture2D>("red1x1");
             goal_marker = Content.Load<Texture2D>("goal-marker");
-            //cell_sprite = Content.Load<Texture2D>("cell-placeholder"); ;
+            //cell_sprite = Content.Load<Texture2D>("cell-placeholder");
         }
 
         //Monogame: Update
