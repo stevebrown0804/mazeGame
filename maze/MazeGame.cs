@@ -340,37 +340,37 @@ namespace maze
                         menu.SetupMenu(menuElements);
                         isMenuSetUp = true;
                     }
-                    if (Keyboard.GetState().IsKeyDown(Keys.F1))             //TODO: Update all(/most) KeyDowns to the (prev==down, cur==up) type
+                    if (prevState.IsKeyUp(Keys.F1) && currentState.IsKeyDown(Keys.F1))
                     {
                         gameState = GameStates.InitializingGame;
                         mazeSize = 5;
                         menuElements.Clear();
                     }
-                    else if (Keyboard.GetState().IsKeyDown(Keys.F2))
+                    else if (prevState.IsKeyUp(Keys.F2) && currentState.IsKeyDown(Keys.F2))
                     {
                         gameState = GameStates.InitializingGame;
                         mazeSize = 10;
                         menuElements.Clear();
                     }
-                    else if (Keyboard.GetState().IsKeyDown(Keys.F3))
+                    else if (prevState.IsKeyUp(Keys.F3) && currentState.IsKeyDown(Keys.F3))
                     {
                         gameState = GameStates.InitializingGame;
                         mazeSize = 15;
                         menuElements.Clear();
                     }
-                    else if (Keyboard.GetState().IsKeyDown(Keys.F4))
+                    else if (prevState.IsKeyUp(Keys.F4) && currentState.IsKeyDown(Keys.F4))
                     {
                         gameState = GameStates.InitializingGame;
                         mazeSize = 20;
                         menuElements.Clear();
                     }
-                    else if (Keyboard.GetState().IsKeyDown(Keys.F5))
+                    else if (prevState.IsKeyUp(Keys.F5) && currentState.IsKeyDown(Keys.F5))
                     {
                         gameState = GameStates.HighScores;
                         isHighScoresSetUp = false;
                         menuElements.Clear();
                     }
-                    else if (Keyboard.GetState().IsKeyDown(Keys.F6))
+                    else if (prevState.IsKeyUp(Keys.F6) && currentState.IsKeyDown(Keys.F6))
                     {
                         gameState = GameStates.Credits;
                         menuElements.Clear();
