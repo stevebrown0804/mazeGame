@@ -215,18 +215,18 @@ namespace mazeGame.Setup.Maze
 
             //Draw the score and the timer (at 0, 1200 through 0, 1300)
             int verticalTextAreaOffset = 30;
-            elTxt = new(RenderType.UI, CallType.Rectangle, game.black1x1, new Rectangle(0, 1200, 1200, 100), Color.White);
+            elTxt = new(RenderType.UI, CallType.Rectangle, game.black1x1, new Rectangle(0, /*1200*/ 900, /*1200*/ 900, 100), Color.White);
             game.textAreaElements.Add(elTxt);
-            elTxt = new(RenderType.Text, "Score: ", new Vector2(200, 1200 + verticalTextAreaOffset), Color.White);
+            elTxt = new(RenderType.Text, "Score: ", new Vector2(200, /*1200*/ 900 + verticalTextAreaOffset), Color.White);
             game.textAreaElements.Add(elTxt);
-            elTxt = new(RenderType.Text, $"{player.GetScore()}", new Vector2(300, 1200 + verticalTextAreaOffset), Color.White);
+            elTxt = new(RenderType.Text, $"{player.GetScore()}", new Vector2(300, /*1200*/ 900 + verticalTextAreaOffset), Color.White);
             game.textAreaElements.Add(elTxt);
 
             if (!isMazeDoneYet)
             {
                 elapsedTime += gameTime.ElapsedGameTime;
             }            
-            elTxt = new(RenderType.Text, $"{elapsedTime.Minutes}:{elapsedTime.Seconds}:{elapsedTime.Milliseconds}", new Vector2(800, 1200 + verticalTextAreaOffset), Color.White);
+            elTxt = new(RenderType.Text, $"{elapsedTime.Minutes}:{elapsedTime.Seconds}:{elapsedTime.Milliseconds}", new Vector2(650, /*1200*/ 900 + verticalTextAreaOffset), Color.White);
             game.textAreaElements.Add(elTxt);
 
             //Then we're done!

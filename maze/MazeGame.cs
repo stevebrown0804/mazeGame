@@ -29,7 +29,7 @@ namespace maze
         public Texture2D red1x1;
         public Texture2D goal_marker;
         //Texture2D cell_sprite;
-        public Point windowSize = new(1200, 1300);     //NOTE: Setting the window size to 1200x1200 <--strike that, 1200x1300
+        public Point windowSize = new(900, 1000); //new(1200, 1300);     //NOTE: Setting the window size to 1200x1200 <--strike that, 1200x1300 <--strike that, 900x1000
         private KeyboardState prevState;
 
         //Menu...
