@@ -100,7 +100,7 @@ namespace mazeGame.Setup.Maze
                     cellHeight = cellWidth = (game.windowSize.X / 15);
                     break;
                 case 20:
-                    cellHeight = cellWidth = (game.windowSize.X / 20);  //Note: all these numbers need to divide game.windowSize.X (and .Y).
+                    cellHeight = cellWidth = (game.windowSize.X / 20);  //Note: all these numbers need to divide game.windowSize.X (and .Y - 100).
                                                                         //  (1200 seems like a good choice; (20*15) * 4 = 1200)
                     break;
                 default:
